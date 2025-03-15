@@ -1,6 +1,8 @@
 from flask import request, redirect, url_for, render_template, flash
 from stage1 import app
+from computations import get_escape_velocities
 import os
+
 
 @app.route('/')
 def home():
@@ -19,16 +21,14 @@ def upload_file():
         #TODO poate-i faci mai incolo secure la filename
         filename = file.filename
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+        request.files['file'].save(filepath)
         # Process the file and compute data
         with open(filepath, 'r') as f:
             data = f.read()
-        computed_data = process_data(data)
+        computed_data = get_escape_velocities(data)
         return render_template('result.html', data=computed_data)
     else:
         flash('Invalid file type')
         return redirect(url_for('home'))
 
 
-def process_data(data):
-    pass
