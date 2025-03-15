@@ -29,6 +29,7 @@
             <th>Escape Velocity (m/s)</th>
             {% if rocket %}
                 <th>Escape Time (s)</th>
+                <th>Escape Distance (m) </th>
             {% endif %}
         </tr>
         </thead>
@@ -41,6 +42,7 @@
                 <td>{{ planet['escape_velocity'] }}</td>
                 {% if rocket %}
                     <td> {{ planet['escape_time'] }} </td>
+                    <td> {{ planet['escape_distance'] }} </td>
                 {% endif %}
             </tr>
         {% endfor %}

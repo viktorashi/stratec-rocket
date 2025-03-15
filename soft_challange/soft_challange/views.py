@@ -1,6 +1,6 @@
 from flask import request, redirect, url_for, render_template, flash
 from soft_challange import app
-from utils import get_escape_velocities, get_escape_times
+from utils import get_escape_velocities, get_escape_time_distance
 import os
 
 
@@ -52,7 +52,7 @@ def upload_file():
             planetary_data = f.read()
         with open(rocket_data_filepath, 'r') as f:
             rocket_data = f.read()
-        planets, rocket = get_escape_times(planetary_data, rocket_data)
+        planets, rocket = get_escape_time_distance(planetary_data, rocket_data)
         return render_template('result.html', planets=planets, rocket=rocket)
 
 

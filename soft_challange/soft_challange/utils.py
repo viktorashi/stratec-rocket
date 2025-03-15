@@ -18,11 +18,11 @@ def calculate_escape_velocity(mass, radius)-> float:
     G = 6.67430 * (10 ** -11) #Newton’s gravitational constant
     return sqrt( 2 * G * mass / (radius * (10 ** 3))  )
 
-def get_escape_times(planetary_data:str, rocket_data:str)->[dict]:
+def get_escape_time_distance(planetary_data:str, rocket_data:str)->[dict]:
     """
     :param planetary_data: string with data about planets
     :param rocket_data: string with data about rockets
-    :return: list of dict with the time it takes to escape the planet
+    :return: the planets ( now with escape_velocity, escape_time and escape_distance data) and rocket_data dicts
     """
     planets = parse_planets(planetary_data)
     rocket_data = parse_rocket(rocket_data)
@@ -31,6 +31,7 @@ def get_escape_times(planetary_data:str, rocket_data:str)->[dict]:
         #we first need the scape velocities
         planet['escape_velocity'] = calculate_escape_velocity(planet['mass'], planet['diameter']/2)
         planet['escape_time'] = calculate_escape_time(planet, rocket_data)
+        planet['escape_distance'] = calculate_escape_distance(rocket_data['acceleration'], planet['escape_time'])
         print(planet)
 
     return planets, rocket_data
@@ -42,6 +43,9 @@ def calculate_escape_time(planet :dict, rocket_data :dict)-> float:
     :return: escape time in seconds : velocity / ( engine_count * acceleration_per_engine)
     """
     return planet['escape_velocity'] / ( rocket_data['engine_count'] * rocket_data['acceleration'] )
+
+def calculate_escape_distance(acceleration, escape_time)-> float:
+    return   ( acceleration * escape_time**2 ) / 2
 
 def parse_rocket(file_data:str)->dict:
     """
