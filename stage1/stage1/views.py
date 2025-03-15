@@ -1,6 +1,6 @@
 from flask import request, redirect, url_for, render_template, flash
 from stage1 import app
-from computations import get_escape_velocities
+from utils import get_escape_velocities
 import os
 
 

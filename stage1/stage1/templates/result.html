@@ -8,7 +8,31 @@
 <body>
 <div class="container">
     <h1 class="mt-5">Computed Data</h1>
-    <pre>{{ data }}</pre>
+<!--    the data is a list of dictionaries of the form
+{ 'name' : name,
+'mass' : mass,
+'diameter' : diameter,
+'escape_velocity' : escape_velocity,
+-->
+    <table class="table table-striped mt-3">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Mass (kg)</th>
+            <th>Diameter (km) </th>
+            <th>Escape Velocity (m/s)</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for planet in data %}
+        <tr>
+            <td>{{ planet['name'] }}</td>
+            <td>{{ planet['mass'] }}</td>
+            <td>{{ planet['diameter'] }}</td>
+            <td>{{ planet['escape_velocity'] }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
     <a href="{{ url_for('home') }}" class="btn btn-primary mt-3">Upload Another File</a>
 </div>
 </body>

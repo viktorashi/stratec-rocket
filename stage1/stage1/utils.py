@@ -5,11 +5,9 @@ def get_escape_velocities(data:str)->[dict]:
 
     for planet in planets:
         planet['escape_velocity'] = calculate_escape_velocity(planet['mass'], planet['diameter']/2)
-
         print(planet)
 
     return planets
-
 
 def calculate_escape_velocity(mass, radius)-> float:
     """
