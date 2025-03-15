@@ -26,27 +26,26 @@ def save_file(file):
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'planetary_data_file' not in request.files:
-        flash('We need at least planetary data for this!')
-        return redirect(url_for('home'))
+    ## asta formeaza gen guardul
+    ### daca vrem sa aflam chestii desrpe sistemul solar ne trebuie toate alea de dinainte,
+    ### daca vrem doar despre ce face reckta noastra cand decoleaza ne trebuie alea planetare,
+    ### si alea planetare sunt singurele gen 'indenpendente' sa zic asa
 
-    if request.files['planetary_data_file'].filename == '':
-        flash("No selected file ( I think, it doesn't really make sense)")
-        return redirect(url_for('home'))
+    if request.files['travel_data_file'].filename != '':
+        if not ( request.files['planetary_data_file'] or request.files['rocket_data_file'] ):
+            flash('We need both planetary and rocket data for this!')
+            return redirect(url_for('home'))
 
-    planteray_data_filepath = save_file('planetary_data_file')
+        #TODO to be continued lol
+        pass
 
-    #it's just planetary data so we need to compute the escape velocity
-    if not request.files['rocket_data_file']:
-        # process the file and compute data
-        with open(planteray_data_filepath, 'r') as f:
-            data = f.read()
-        computed_data = get_escape_velocities(data)
-        return render_template('result.html', planets=computed_data)
-    # adica sunt ambele, ca s-a verificat inaitne cad aca exista planeetary data
-    else:
+    if request.files['rocket_data_file'].filename != '':
+        if not request.files['planetary_data_file']:
+            flash('We need planetary data for this as well!')
+            return redirect(url_for('home'))
 
         rocket_data_filepath = save_file('rocket_data_file')
+        planteray_data_filepath = save_file('planetary_data_file')
         # process the file and compute data
         with open(planteray_data_filepath, 'r') as f:
             planetary_data = f.read()
@@ -55,4 +54,17 @@ def upload_file():
         planets, rocket = get_escape_time_distance(planetary_data, rocket_data)
         return render_template('result.html', planets=planets, rocket=rocket)
 
+    if request.files['planetary_data_file'].filename != '':
+        if request.files['planetary_data_file'].filename == '':
+            flash('We need at least planetary data for this!')
+            return redirect(url_for('home'))
 
+        planteray_data_filepath = save_file('planetary_data_file')
+        # process the file and compute data
+        with open(planteray_data_filepath, 'r') as f:
+            data = f.read()
+        computed_data = get_escape_velocities(data)
+        return render_template('result.html', planets=computed_data)
+    else:
+        flash('Cmonnn upload *somethinggg*!!')
+        return redirect(url_for('home'))

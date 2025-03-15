@@ -1,12 +1,15 @@
 const planetaryFileInput = document.getElementById('planetary_data_file');
 const rocketFileInput = document.getElementById('rocket_data_file');
+const travelFileInput = document.getElementById('travel_data_file');
+
 
 const planetaryDropArea = document.getElementById('planetary-drag-drop-area');
 const rocketDropArea = document.getElementById('rocket-drag-drop-area');
+const travelDropArea = document.getElementById('travel-drag-drop-area');
 
 // si te pui frumos doar aici cand mai adaugi unu
-const dropAreas = [planetaryDropArea, rocketDropArea];
-const fileInputs = [planetaryFileInput, rocketFileInput];
+const dropAreas = [planetaryDropArea, rocketDropArea, travelDropArea];
+const fileInputs = [planetaryFileInput, rocketFileInput, travelFileInput];
 
 for (let i = 0; i < dropAreas.length; i++) {
     const dropArea = dropAreas[i];

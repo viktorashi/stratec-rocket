@@ -10,20 +10,6 @@
 <div class="container">
     <h1 class="mt-5">Upload a .txt File</h1>
 
-    <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
-        <div class="form-group">
-            <input type="file" class="form-control-file" id="planetary_data_file" name="planetary_data_file">
-            <div class="drag-drop-area" id="planetary-drag-drop-area">
-                Drop the planetary data here
-            </div>
-            <input type="file" class="form-control-file" id="rocket_data_file" name="rocket_data_file">
-            <div class="drag-drop-area" id="rocket-drag-drop-area">
-                Drop the rocket data here
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Upload</button>
-    </form>
-
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         <div class="alert alert-warning mt-3">
@@ -33,6 +19,27 @@
         </div>
       {% endif %}
     {% endwith %}
+
+    <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <input type="file" class="form-control-file" id="planetary_data_file" name="planetary_data_file">
+            <div class="drag-drop-area" id="planetary-drag-drop-area">
+                Drop the planetary data here
+            </div>
+
+            <input type="file" class="form-control-file" id="rocket_data_file" name="rocket_data_file">
+            <div class="drag-drop-area" id="rocket-drag-drop-area">
+                Drop the rocket data here
+            </div>
+
+            <input type="file" class="form-control-file" id="travel_data_file" name="travel_data_file">
+            <div class="drag-drop-area" id="travel-drag-drop-area">
+                Drop the solar system data here
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
 </div>
 <script src="../static/home.js"></script>
 </body>
