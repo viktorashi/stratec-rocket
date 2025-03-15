@@ -1,5 +1,5 @@
 from flask import request, redirect, url_for, render_template, flash
-from stage1 import app
+from soft_challange import app
 from utils import get_escape_velocities
 import os
 

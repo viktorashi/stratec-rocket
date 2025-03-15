@@ -10,7 +10,7 @@ app.config['ALLOWED_EXTENSIONS'] = {'txt'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-import stage1.views
+import soft_challange.views
 
 if __name__ == '__main__':
     app.run(debug=True)
