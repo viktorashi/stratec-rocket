@@ -53,7 +53,7 @@ def parse_planets(file_data:str)->[dict]:
 
             if 'kg' == mass[-2:]:
                 # kg (cam multe)
-                mass = 6 * (10 ** 24)  # bit cheap but does the job
+                mass = 6 * (10 ** 24)  # a bit cheap but does the job
                 earth_mass = mass
            #daca nu e pamantul dar e dupa ce s-a gasti pamantul
             elif earth_mass != -1:

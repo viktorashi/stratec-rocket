@@ -10,10 +10,10 @@ def home():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:
+    if 'planetary_data_file' not in request.files:
         flash('No file part')
         return redirect(url_for('home'))
-    file = request.files['file']
+    file = request.files['planetary_data_file']
     if file.filename == '':
         flash('No selected file')
         return redirect(url_for('home'))
@@ -21,7 +21,7 @@ def upload_file():
         #TODO poate-i faci mai incolo secure la filename
         filename = file.filename
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        request.files['file'].save(filepath)
+        request.files['planetary_data_file'].save(filepath)
         # Process the file and compute data
         with open(filepath, 'r') as f:
             data = f.read()

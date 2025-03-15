@@ -1,0 +1,15 @@
+.drag-drop-area {
+    min-height: 200px;
+    white-space: pre;
+    /*border: 1px solid black;*/
+    border: 2px dashed #007bff;
+    border-radius: 5px;
+    padding: 20px;
+    text-align: center;
+    /*color: #007bff;*/
+    cursor: pointer;
+    }
+
+.drag-drop-area.dragover {
+    background-color: #e9ecef;
+}
