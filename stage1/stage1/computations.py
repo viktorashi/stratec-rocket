@@ -1,21 +1,14 @@
 from math import sqrt
+
 def get_escape_velocities(data:str)->[dict]:
     planets = parse_planets(data)
-    earth_mass = -1
 
     for planet in planets:
-        if planet['name'] == 'Earth':
-            earth_mass = planet['mass']
-            break
-
-    for planet in planets:
-        if planet['name'] != 'Earth':
-            planet['mass'] = int ( planet['mass'] * earth_mass )
-            planet['escape_velocity'] = calculate_escape_velocity(planet['mass'], planet['diameter']/2)
-        else:
-            planet['escape_velocity'] = calculate_escape_velocity(earth_mass, planet['diameter']/2)
+        planet['escape_velocity'] = calculate_escape_velocity(planet['mass'], planet['diameter']/2)
 
         print(planet)
+
+    return planets
 
 
 def calculate_escape_velocity(mass, radius)-> float:
@@ -40,7 +33,12 @@ def parse_planets(file_data:str)->[dict]:
 # Neptune: diameter = 48400 km, mass = 17 Earths
 # Pluto: diameter = 2450 km, mass = 0.002 Earths
     :param file_data: string cu date cum sunt scirse sus
-    :return: lista cu dict cu datele basic (alea care se pot extrage pur si simplu din Planetary_data.txt pt fiecare planeta
+    :return: lista cu dicturi de forma
+
+    { "name" :planeta,
+    "diameter": diametru,
+    "mass": masa ( calculata in kg dupa ce s-a aflat care e aia a pamantului si dupa luata ce proportie e aia din masa pamantukui)
+    }
     """
 
     print(file_data)
