@@ -31,7 +31,7 @@ def get_escape_time_distance(planetary_data:str, rocket_data:str)->[dict]:
         #we first need the scape velocities
         planet['escape_velocity'] = calculate_escape_velocity(planet['mass'], planet['diameter']/2)
         planet['escape_time'] = calculate_escape_time(planet, rocket_data)
-        planet['escape_distance'] = calculate_escape_distance(rocket_data['acceleration'], planet['escape_time'])
+        planet['escape_distance'] = calculate_escape_distance(rocket_data['acceleration'] * rocket_data['engine_count'], planet['escape_time'])
         print(planet)
 
     return planets, rocket_data
