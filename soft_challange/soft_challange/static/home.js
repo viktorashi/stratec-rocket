@@ -1,35 +1,48 @@
-const fileInput = document.getElementById('planetary_data_file');
-const dragDropArea = document.getElementById('drag-drop-area');
+const planetaryFileInput = document.getElementById('planetary_data_file');
+const rocketFileInput = document.getElementById('rocket_data_file');
 
-dragDropArea.addEventListener('click', () => fileInput.click());
+const planetaryDropArea = document.getElementById('planetary-drag-drop-area');
+const rocketDropArea = document.getElementById('rocket-drag-drop-area');
 
-dragDropArea.addEventListener('dragover', (e) => {
-    e = e || event
-    e.preventDefault();
-    e.stopPropagation();
-    dragDropArea.classList.add('dragover');
-},false);
+// si te pui frumos doar aici cand mai adaugi unu
+const dropAreas = [planetaryDropArea, rocketDropArea];
+const fileInputs = [planetaryFileInput, rocketFileInput];
 
-dragDropArea.addEventListener('dragleave', (e) => {
-    e = e || event
-    e.stopPropagation();
-    e.preventDefault();
-    dragDropArea.classList.remove('dragover');
-},false);
+for (let i = 0; i < dropAreas.length; i++) {
+    const dropArea = dropAreas[i];
+    const fileInput = fileInputs[i];
 
-dragDropArea.addEventListener('drop', (e) => {
-    e = e || event
-    e.preventDefault();
-    e.stopPropagation();
-    dragDropArea.classList.remove('dragover');
-    const files = e.dataTransfer.files;
-    if (0 < files.length <= 1) {
-        fileInput.files = files;
-    }
-},false);
+    dropArea.addEventListener('click', () => fileInput.click());
 
-fileInput.addEventListener('change', () => {
-    if (fileInput.files.length > 0) {
-        dragDropArea.textContent = fileInput.files[0].name;
-    }
-},false);
+    dropArea.addEventListener('dragover', (e) => {
+        e = e || event
+        e.preventDefault();
+        e.stopPropagation();
+        dropArea.classList.add('dragover');
+    }, false);
+
+    dropArea.addEventListener('dragleave', (e) => {
+        e = e || event
+        e.stopPropagation();
+        e.preventDefault();
+        dropArea.classList.remove('dragover');
+    }, false);
+
+    dropArea.addEventListener('drop', (e) => {
+        e = e || event
+        e.preventDefault();
+        e.stopPropagation();
+        dropArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (0 < files.length <= 1) {
+            fileInput.files = files;
+        }
+    }, false);
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            dropArea.textContent = fileInput.files[0].name;
+        }
+    }, false);
+}
+

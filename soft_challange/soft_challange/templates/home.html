@@ -12,9 +12,13 @@
 
     <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
         <div class="form-group">
-            <input type="file" class="form-control-file" id="planetary_data_file" name="planetary_data_file" >
-            <div class="drag-drop-area" id="drag-drop-area">
+            <input type="file" class="form-control-file" id="planetary_data_file" name="planetary_data_file">
+            <div class="drag-drop-area" id="planetary-drag-drop-area">
                 Drop the planetary data here
+            </div>
+            <input type="file" class="form-control-file" id="rocket_data_file" name="rocket_data_file">
+            <div class="drag-drop-area" id="rocket-drag-drop-area">
+                Drop the rocket data here
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Upload</button>

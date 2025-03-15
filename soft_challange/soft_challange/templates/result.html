@@ -8,29 +8,41 @@
 <body>
 <div class="container">
     <h1 class="mt-5">Computed Data</h1>
-<!--    the data is a list of dictionaries of the form
-{ 'name' : name,
-'mass' : mass,
-'diameter' : diameter,
-'escape_velocity' : escape_velocity,
--->
+    <!--    the data is a list of dictionaries of the form
+    { 'name' : name,
+    'mass' : mass,
+    'diameter' : diameter,
+    'escape_velocity' : escape_velocity,
+    -->
+
+    {% if rocket %}
+        <h2>The escape time for a rocket with {{ rocket['engine_count'] }} engines, each
+            with {{ rocket['acceleration'] }} m/s^2 would be:</h2>
+    {% endif %}
+
     <table class="table table-striped mt-3">
         <thead>
         <tr>
             <th>Name</th>
             <th>Mass (kg)</th>
-            <th>Diameter (km) </th>
+            <th>Diameter (km)</th>
             <th>Escape Velocity (m/s)</th>
+            {% if rocket %}
+                <th>Escape Time (s)</th>
+            {% endif %}
         </tr>
         </thead>
         <tbody>
-        {% for planet in data %}
-        <tr>
-            <td>{{ planet['name'] }}</td>
-            <td>{{ planet['mass'] }}</td>
-            <td>{{ planet['diameter'] }}</td>
-            <td>{{ planet['escape_velocity'] }}</td>
-        </tr>
+        {% for planet in planets %}
+            <tr>
+                <td>{{ planet['name'] }}</td>
+                <td>{{ planet['mass'] }}</td>
+                <td>{{ planet['diameter'] }}</td>
+                <td>{{ planet['escape_velocity'] }}</td>
+                {% if rocket %}
+                    <td> {{ planet['escape_time'] }} </td>
+                {% endif %}
+            </tr>
         {% endfor %}
         </tbody>
     </table>
