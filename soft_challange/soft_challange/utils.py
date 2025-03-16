@@ -1,4 +1,8 @@
-from math import sqrt
+from math import sqrt, cos, sin
+
+from flask import Flask
+
+AU = 149597870.7 * (10 ** 3)  # 1 AU in meters
 
 
 def get_escape_velocities(data: str) -> [dict]:
@@ -110,8 +114,6 @@ def get_stupid_travel_data(planets: [dict], from_planet: str,
     # in AU's
     distance_between_planet_centers = abs(from_planet_data['orbital_radius'] - to_planet_data['orbital_radius'])
 
-    AU = 149597870.7 * (10 ** 3)  # 1 AU in meters
-
     distance_between_planet_centers = distance_between_planet_centers * AU
 
     # long boi
@@ -131,6 +133,7 @@ def get_stupid_travel_data(planets: [dict], from_planet: str,
 def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) -> dict:
     """
     Stage 5: Gets the same results as stage 3 but with
+
     1. optimal_transfer_window in days or years whatever that shows
     the day in which you start the travel starting from t0
 
@@ -156,46 +159,202 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
             break
 
     t0 = 100 * 365  # 100 years
-    start_angular_positions = get_angular_positions(planets, t0)
+    #TODO sa dai handle sa cazu in care nu poate deloc sa treaca (in linie dreapta gen) in aia 10 ani
+    min_distance = 999999999999999999999999999999999999999999999999  # stiu ca pot sa iau doar diametrul de la cel mai departe but idk
+    # folosesti la final cand se termina tot sa calculezi cum arata planetele in ziua aia
 
+    optimal_transfer_window_day = -1
+
+    # looks in the future for 10 years
+    for day in range(365 * 10):
+        angular_positions = get_angular_positions(planets, t0 + day)
+
+        # angle between the two planets
+        from_planet_angle = -1
+        to_planet_angle = -1
+
+        for planet in angular_positions:
+            if planet[0] == from_planet:
+                from_planet_angle = planet[1]
+            elif planet[0] == to_planet:
+                to_planet_angle = planet[1]
+            elif from_planet_angle != -1 and to_planet_angle != -1:
+                break
+
+        angle = abs(from_planet_angle - to_planet_angle)
+        # in metrii
+        r1 = from_planet_data['orbital_radius'] * AU
+        r2 = to_planet_data['orbital_radius'] * AU
+        # straight line distance between the two planets
+        distance = sqrt(r1 ** 2 + r2 ** 2 - 2 * r1 * r2 * cos(angle))
+        if distance < min_distance:
+            crashes = False
+            for angle_position in angular_positions:
+                planet_name, angular_position, orbit_radius, planet_radius = angle_position
+                orbit_radius = orbit_radius * AU #in metrii
+                if not (planet_name == from_planet or planet_name == to_planet):
+                    # coordinates of the source and destination planets in cartesian
+                    x1 = r1 * cos(from_planet_angle)
+                    y1 = r1 * sin(from_planet_angle)
+                    x2 = r2 * cos(to_planet_angle)
+                    y2 = r2 * sin(to_planet_angle)
+
+                    a = x1 ** 2 + y1 ** 2 - 2 * x1 * x2 - 2 * y1 * y2 + y2 ** 2 + x2 ** 2
+                    b = 2 * (x1 * x2 + y1 * y2 - x2 ** 2 - y2 ** 2)
+                    c = x2 ** 2 + y2 ** 2 - orbit_radius ** 2
+                    delta = b ** 2 - 4 * a * c
+
+                    # perfectt nu se interseteaza niciaeri (in universul vizibil cel putin, nu ne apucam de quaternioni acm)
+                    if delta < 0:
+                        min_distance = distance
+                        optimal_transfer_window_day = day
+
+                    # se intersecteaza, dar tangent asa la un singur punct
+                    elif delta == 0:
+                        # nu pot sa scriu lambda ca e gen sintaxa in python lol
+                        lamb = -b / 2 * a
+                        # lambda * (x1, y1) + (1 - lambda) * (x2, y2) = (xintersect, yintersect)
+                        [xintersect, yintersect] = [lamb * x1 + (1 - lamb) * x2, lamb * y1 + (1 - lamb) * y2]
+                        xplaneta = orbit_radius * cos(angular_position)
+                        yplaneta = orbit_radius * sin(angular_position)
+
+                        if sqrt((xintersect - xplaneta) ** 2 + (yintersect - yplaneta) ** 2) <= planet_radius:
+                            crashes = True
+                            break
+
+                    # delta > 0, 2 intersectii
+                    else:
+                        lamb1 = (-b + sqrt(delta)) / 2 * a
+                        lamb2 = (-b - sqrt(delta)) / 2 * a
+
+                        xplaneta = orbit_radius * cos(angular_position)
+                        yplaneta = orbit_radius * sin(angular_position)
+
+                        for lamb in [lamb1, lamb2]:
+                            [xintersect, yintersect] = [lamb * x1 + (1 - lamb) * x2, lamb * y1 + (1 - lamb) * y2]
+
+                            if sqrt((xintersect - xplaneta) ** 2 + (yintersect - yplaneta) ** 2) <= planet_radius:
+                                crashes = True
+                                break
+
+                if crashes:
+                    # uitate la urmatoarea zi
+                    break
+
+            if not crashes:
+                min_distance = distance
+                optimal_transfer_window_day = day
+
+    # amu plecam la drum
+    travel_results = {}
+
+    if from_planet_data['escape_velocity'] > to_planet_data['escape_velocity']:
+        cruising_velocity = from_planet_data['escape_velocity']
+        escape_distanace = from_planet_data['escape_distance']
+        escape_time = from_planet_data['escape_time']
+    else:
+        cruising_velocity = to_planet_data['escape_velocity']
+        escape_distanace = to_planet_data['escape_distance']
+        escape_time = to_planet_data['escape_time']
+
+    travel_results['escape_time'] = escape_time
+    travel_results['escape_distance'] = escape_distanace
+
+    travel_results['cruise_time'] = calculate_cruise_time(min_distance, escape_distanace,
+                                                          from_planet_data['diameter'] * (10 ** 3) / 2,
+                                                          to_planet_data['diameter'] * (10 ** 3) / 2, cruising_velocity)
+
+    travel_results['total_travel_time'] = ((min_distance -
+                                            from_planet_data['diameter'] * (10 ** 3) / 2 - to_planet_data[
+                                                'diameter'] * (10 ** 3) / 2)
+                                           / cruising_velocity)
+
+
+    #ok astea sunt noi))
+    travel_results['optimal_transfer_window'] = optimal_transfer_window_day
+    travel_results['angular_positions'] = get_angular_positions(planets, t0 + optimal_transfer_window_day)
+
+
+    return travel_results
 
 """
-
-     planetele mele de unde pana unde vreau sa merg, intersecteaza traioectoria altor plenete (infara de alea de unde plec si ma duc) ? (poti sa stii de la inceput chestia asta)
-        salveaza o lista cu razele orbitale si razele lor normale gen la alea la care as putea sa le tai calea (sau ele mie mai bine zis)
-             [ [raza_orbitala, raza_planetei], ... ]
-        ai grija ca poate sa se intersecteze de 2 ori, uitate sa vezi daca mai ai raza aia orbitala salvata undeva
-        
-    afla punctele de intesectie intre traiectoria mea si a lor (raza, distanta_orbitala)
-         dictionar unde cheia e raza orbitala si valoarea un tuple cu unghiul la care le-am intersecta
-         { raza_orbitala: (unghi1, unghi2), ... }
-
-        
      merg in fiecare zi
-        fa un dict care se updateaza in fiecare zi (doar daca se gaseste o distanta minima adica) cu unghiul la care e fiecare planeta de pe traiectoriia mea, unde cheia e raza orbitala la planeta ca oricum e unica
+        fa un dict care se updateaza in fiecare zi cu unghiul la care e fiecare planeta de pe traiectoriia mea, unde cheia e raza orbitala la planeta ca oricum e unica
             { orbital_radius: angular_position, ... } 
             
      e distanta mai mica decat ce am vazut inainte?
-        la distanta nu e greu, stiu unghiurile lor fac unghiu dintre ele: unghi = abs ( unghi1 - unghi2 )
+        la distanta nu e greu, stiu unghiurile lor fac unghiu dintre ele: 
+        
+        unghi = abs ( unghi1 - unghi2 )
         d^2 = r1^2 + r2^2 - 2 * r1 * r2 * cos(unghi)
         
-     daca da, ma uit: unde sunt astea fiecare pe care stiu ca le intersectez?
-         transform din coordonate radiale in carteziane si vad daca distanta dintre ( punctele mele de intersectie cu orbitele si punctul la care e centrul de masa al planetei [in ziua aia] pe care orbita sunt ) e mai mica decat raza planetei
+     daca da, ma uit: unde sunt astea fiecare, le intersectez in ziua aia? (inafara de alea de unde plec si unde ma duc)
+     
+        aici mai greut un pic deci:
+            daca fac coordonate carteziane pt centrul planetei de la care plec si unde ma duc pot sa parametrizsez traiectoria:
+                lambda * (x1, y1) + (1 - lambda) * (x2, y2) = (x, y)
+            cercul orbitei planetei (centrat la zero unde e soarele):
+                x^2 + y^2 = r^2
+                    
+            daca le intersectez imi da lambdaurile (dupa 3 pagini de calcule):
+            
+            for r in planets_orbital_radii:
+                a = x1^2 + y1^2 - 2*x1*x2 - 2*y1*y2 + y2^2 + x2^2
+                b = 2 * ( x1*x2 + y1*y2 - x2^2 - y2^2 )
+                c = x2^2 + y2^2 - r^2
+                delta = b^2 - 4*a*c
+
+                if delta < 0:
+                    (GOOD) nu se intersecteaza, so don't even worry. poti sa treci la urmatoru 
+                elif este traiectoria mea? or e traiectoria la aia unde ma duc?:
+                    (GOOD) la, fel nu ma intereseaza 
+                elif delta == 0:
+                    lambda =  -b / 2*a
+                
+                    inclocuiesc dupaia inapoi lambda in
+                    lambda * (x1, y1) + (1 - lambda) * (x2, y2) = (xintersect, yintersect)
+                    sa vad ce punct e acolo la intersectie 
+                    si vad daca distanta de la punctul asta la centrul planetei de raza orbitala r e mai mica decat raza planetei
+                     
+                    if sqrt( (xintersect - xplaneta)^2 + (yintersect - yplaneta)^2 ) > rplaneta:
+                        (GOOD) pentru toate cu care se intersecteaza 
+                    else:
+                        (BAD) taie TATTTOTTT ce-ai fct pana acm, treci la urmatoarea zi
+                    
+                        
+                #sunt 2 intersectii la care tre sa ma uit
+                else delta > 0:        
+                lambda1 =  ( -b + sqrt(delta) ) / 2*a
+                lambda2 =  ( -b - sqrt(delta) ) / 2*a
+                
+                for lambda in [lambda1, lambda2]:
+                    # sa vad ce punct e acolo la intersectie 
+                    lambda * (x1, y1) + (1 - lambda) * (x2, y2) = (xintersect, yintersect)
+                     
+                    if sqrt( (xintersect - xplaneta)^2 + (yintersect - yplaneta)^2 ) > rplaneta:
+                        (GOOD) pentru toate cu care se intersecteaza 
+                    else:
+                        (BAD) taie TATTTOTTT ce-ai fct pana acm, treci la urmatoarea zi
+
+     
+    salveaza ultima zi in care ai putut sa treci de la unu la altu macar (prbabil nu e chiar cea mai optima, in cazu in care n-ar fi fost alte planete, dar ai incercat si tu) 
 """
 
 
-def get_angular_positions(planets, day):
+def get_angular_positions(planets, day: int) -> [tuple[str, int, float, int]]:
     """
     :param planets: list of planets with orbital radii and periods
     :param day: the day for which we want the positions
-    :return: list of tuples (planet_name, angular_position)
+    :return: list of tuples (planet_name, angular_position, orbit_radius, planet_radius)
     """
 
     angular_positions = []
     for planet in planets:
         angular_speed = 360 / planet['period']  # degrees per day
         angular_position = (day * angular_speed) % 360  # degrees but it wraps around if it goes over 360
-        angular_positions.append([planet['name'], angular_position])
+        orbit_radius = planet['orbital_radius']
+        planet_radius = planet['diameter'] / 2
+        angular_positions.append([planet['name'], angular_position, orbit_radius, planet_radius])
 
     return angular_positions
 

@@ -7,7 +7,7 @@
 </head>
 <body>
 <div class="container">
-    <h1 class="mt-5">Travel Data between <i>{{ fromPlanet }}</i> -> <i>{{ toPlanet }}</i></h1>
+    <h1 class="mt-5">Travel Data between <i>{{ fromPlanet }}</i> -> <i>{{ toPlanet }}</i> <sub>(with planets moving but frezzing when the journey starts) </sub> </h1>
     <ul class="list-group mt-3">
         <li class="list-group-item"><b>Escape Time</b>: {{ travel.escape_time }} seconds from take-off</li>
         <li class="list-group-item"><b>Escape Distance</b>: {{ travel.escape_distance }} meters from start planet</li>
@@ -23,17 +23,49 @@
         <li class="list-group-item"><b>Total Travel Time</b>: {{ travel.total_travel_time }}</li>
         <li id="total-travel-time-readable" class="list-group-item"><b>Total Travel Time but readable</b>:</li>
 
+        <li class="list-group-item"><b>Transfer window</b>; the day (after those 100 days) in which the journey can be
+            made: {{ travel.optimal_transfer_window }}</li>
+
     </ul>
+
+    <h3 class="my-4">Angular Positions of Planets on that day</h3>
+    <table class="table table-striped table-hover">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">Planet Name</th>
+            <th scope="col">Angular Position (degrees)</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for position in travel.angular_positions %}
+            <tr>
+                <td>{{ position[0] }}</td>
+                <td>{{ position[1] }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
     <a href="{{ url_for('home') }}" class="btn btn-primary mt-3">Back to Home</a>
 </div>
 
-<script src="../static/travel_medium.js"></script>
+<script src="../static/travel_stupid.js"></script>
 <script type="text/javascript">
-    const { days: totalDays, hours:totalHours, minutes:totalMinutes, seconds:totalSeconds } = convertSeconds({{travel.total_travel_time}});
+    const {
+        days: totalDays,
+        hours: totalHours,
+        minutes: totalMinutes,
+        seconds: totalSeconds
+    } = convertSeconds({{travel.total_travel_time}});
     const totalTravelTime = document.getElementById('total-travel-time-readable');
     totalTravelTime.innerText = `${totalDays} days, ${totalHours} hours, ${totalMinutes} minutes, ${totalSeconds} seconds`;
 
-    const {days : cruiseDays, hours: cruiseHours, minutes: cruiseMinutes, seconds: cruiseSeconds} = convertSeconds({{travel.cruise_time}});
+    const {
+        days: cruiseDays,
+        hours: cruiseHours,
+        minutes: cruiseMinutes,
+        seconds: cruiseSeconds
+    } = convertSeconds({{travel.cruise_time}});
     const cruiseTime = document.getElementById('cruise-time-readable');
     cruiseTime.innerText = `${cruiseDays} days, ${cruiseHours} hours, ${cruiseMinutes} minutes, ${cruiseMinutes} seconds`;
 </script>
