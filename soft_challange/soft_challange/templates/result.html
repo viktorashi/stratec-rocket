@@ -57,6 +57,29 @@
     </table>
 
     {% if solar_system_data %}
+        {#        ala destept rau #}
+        <h3>From which to which planets do you want to travel? (brazy difficulty Stage 6) </h3>
+        <form action="{{ url_for('smart_travel') }}" method="post" id="smartTravelForm"
+              onsubmit="return smartTravelFormSubmitHandler()">
+            <div class="form-group">
+                <label for="from_planet">From:</label>
+                <select class="form-control" id="from_planet" name="from_planet">
+                    {% for planet in planets %}
+                        <option value="{{ planet['name'] }}">{{ planet['name'] }}</option>
+                    {% endfor %}
+                </select>
+                <label for="to_planet">To:</label>
+                <select class="form-control" id="to_planet" name="to_planet">
+                    {% for planet in planets %}
+                        <option value="{{ planet['name'] }}">{{ planet['name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success mt-3" id="smartTravelSubmitButton">Get travel data</button>
+        </form>
+
+
+        {#      Astea medii  #}
         <h3>From which to which planets do you want to travel? (medium difficulty Stage 5) </h3>
         <form action="{{ url_for('medium_travel') }}" method="post" id="mediumTravelForm"
               onsubmit="return mediumTravelFormSubmitHandler()">
@@ -78,6 +101,7 @@
         </form>
 
 
+        {# astea mai usurele #}
         <h3>From which to which planets do you want to travel? (stupidly) </h3>
         <form action="{{ url_for('stupid_travel') }}" method="post" id="stupidTravelForm"
               onsubmit="return stupidTravelFormSubmitHandler()">
@@ -99,7 +123,7 @@
         </form>
         <div id="travelError" class="alert alert-danger mt-3" style="display: none"></div>
 
-        {#        make another form that takes in an int representing the number of a day#}
+        {#        daca vrei doar sa vezi direct cum sunt aliniate planetele intr-o zi#}
 
         <h3>For which day do you want to see the angular positions of the planets?</h3>
         <form action="{{ url_for('angular_positions') }}" method="post" id="angularPositionsForm">

@@ -1,6 +1,7 @@
 from flask import request, redirect, url_for, render_template, flash
 from soft_challange import app
-from utils import get_escape_velocities, get_escape_time_distance, get_stupid_travel_data, parse_travel, get_angular_positions, get_medium_travel_data
+from utils import get_escape_velocities, get_escape_time_distance, get_stupid_travel_data, parse_solar_system_data, \
+    get_angular_positions, get_medium_travel_data, get_smart_travel_data
 import os
 
 
@@ -41,7 +42,7 @@ def proccess_planet_and_rocket_data() -> [[dict], dict]:
     return planets, rocket
 
 
-def proccess_solar_system_data()-> [[dict], dict]:
+def proccess_solar_system_data() -> [[dict], dict]:
     """
     :return: the planets and rocket data
     """
@@ -52,9 +53,10 @@ def proccess_solar_system_data()-> [[dict], dict]:
     with open(solar_system_filepath, 'r') as f:
         solar_system_data = f.read()
 
-    planets = parse_travel(solar_system_data, planets)
+    planets = parse_solar_system_data(solar_system_data, planets)
 
     return planets, rocket
+
 
 @app.get('/')
 def home():
@@ -124,9 +126,9 @@ def stupid_travel():
 
     return render_template("travel_stupid.html", travel=travel_results, fromPlanet=from_planet, toPlanet=to_planet)
 
+
 @app.post('/medium_travel')
 def medium_travel():
-    # this will be a form with two select fields containing planet names their names are from_planet and to_planet, first check if they are different and giev a flash if not
     from_planet = request.form['from_planet']
     to_planet = request.form['to_planet']
 
@@ -144,19 +146,38 @@ def medium_travel():
     return render_template("travel_medium.html", travel=travel_results, fromPlanet=from_planet, toPlanet=to_planet)
 
 
+@app.post('/smart_travel')
+def smart_travel():
+    from_planet = request.form['from_planet']
+    to_planet = request.form['to_planet']
+
+    if from_planet == to_planet:
+        flash('These are the same planets, dummyy')
+        return redirect(url_for('upload'))
+
+    planets, rocket = proccess_solar_system_data()
+    travel_results = get_smart_travel_data(planets, from_planet, to_planet)
+
+    if not travel_results:
+        flash('No such travel possible')
+        return redirect(url_for('upload'))
+
+    return render_template("travel_smart.html", travel=travel_results, fromPlanet=from_planet, toPlanet=to_planet)
+
+
 @app.post('/angular_positions')
 def angular_positions():
     """
     Takes form data for the day the user wants to see the angular positions of all planets
     :return:
     """
-    day =  int ( request.form['day'] )
+    day = int(request.form['day'])
 
     if day < 0:
         flash('Day must be a positive number!!')
         return redirect(url_for('upload'))
 
-    planets  = proccess_solar_system_data()[0]
+    planets = proccess_solar_system_data()[0]
     angular_positions = get_angular_positions(planets, day)
 
     return render_template("positions.html", angular_positions=angular_positions, day=day)
