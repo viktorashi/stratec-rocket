@@ -11,7 +11,6 @@ function travelFormSubmitHandler() {
         // it's NOT safe to submit the form
         return false;
     }
-   // it's safe to submit the form
+    // it's safe to submit the form
     return true;
-
 }

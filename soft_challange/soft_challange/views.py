@@ -1,6 +1,6 @@
 from flask import request, redirect, url_for, render_template, flash
 from soft_challange import app
-from utils import get_escape_velocities, get_escape_time_distance, get_travel_data, parse_travel
+from utils import get_escape_velocities, get_escape_time_distance, get_travel_data, parse_travel, get_angular_positions
 import os
 
 
@@ -123,3 +123,20 @@ def travel():
     travel_results = get_travel_data(planets, from_planet, to_planet)
 
     return render_template("travel.html", travel=travel_results, fromPlanet=from_planet, toPlanet=to_planet)
+
+@app.post('/angular_positions')
+def angular_positions():
+    """
+    Takes form data for the day the user wants to see the angular positions of all planets
+    :return:
+    """
+    day =  int ( request.form['day'] )
+
+    if day < 0:
+        flash('Day must be a positive number!!')
+        return redirect(url_for('upload'))
+
+    planets  = proccess_solar_system_data()[0]
+    angular_positions = get_angular_positions(planets, day)
+
+    return render_template("positions.html", angular_positions=angular_positions, day=day)

@@ -126,6 +126,20 @@ def get_travel_data(planets: [dict], from_planet: str,
 
     return travel_results
 
+def get_angular_positions(planets, day):
+    """
+    :param planets: list of planets with orbital radii and periods
+    :param day: the day for which we want the positions
+    :return: list of tuples (planet_name, angular_position)
+    """
+
+    angular_positions = []
+    for planet in planets:
+        angular_speed = 360 / planet['period'] # degrees per day
+        angular_position = (day * angular_speed) % 360 # degrees but it wraps around if it goes over 360
+        angular_positions.append([planet['name'], angular_position ] )
+
+    return angular_positions
 
 def calculate_escape_velocity(mass, radius) -> float:
     """

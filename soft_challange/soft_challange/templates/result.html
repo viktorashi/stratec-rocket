@@ -77,9 +77,21 @@
             </div>
             <button type="submit" class="btn btn-success mt-3" id="travelSubmitButton">Get travel data</button>
         </form>
-        {#        make a little box iwth id travelError whose id i can use in case an error appears and I can change its innerText to show theerror#}
         <div id="travelError" class="alert alert-danger mt-3" style="display: none"></div>
+
+        {#        make another form that takes in an int representing the number of a day#}
+
+        <h3>For which day do you want to see the angular positions of the planets?</h3>
+        <form action="{{ url_for('angular_positions') }}" method="post" id="angularPositionsForm">
+            <div class="form-group">
+                <label for="day">Day:</label>
+                <input type="number" class="form-control" id="day" name="day" min="0">
+            </div>
+            <button type="submit" class="btn btn-success mt-3" id="angularPositionsSubmitButton">Get positions</button>
+        </form>
     {% endif %}
+
+
 
     <a href="{{ url_for('home') }}" class="btn btn-primary mt-3">Upload Another File</a>
 </div>
