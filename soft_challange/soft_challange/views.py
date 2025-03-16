@@ -137,6 +137,10 @@ def medium_travel():
     planets, rocket = proccess_solar_system_data()
     travel_results = get_medium_travel_data(planets, from_planet, to_planet)
 
+    if not travel_results:
+        flash('No such travel possible')
+        return redirect(url_for('upload'))
+
     return render_template("travel_medium.html", travel=travel_results, fromPlanet=from_planet, toPlanet=to_planet)
 
 

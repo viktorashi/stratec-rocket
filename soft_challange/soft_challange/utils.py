@@ -130,7 +130,7 @@ def get_stupid_travel_data(planets: [dict], from_planet: str,
     return travel_results
 
 
-def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) -> dict:
+def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) -> dict | bool:
     """
     Stage 5: Gets the same results as stage 3 but with
 
@@ -144,7 +144,7 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     :param planets:
     :param from_planet:
     :param to_planet:
-    :return:
+    :return: the 6 requirements of the problem statement in a dict | or False if it's impossible and your constantly blocked by other planets
     """
 
     from_planet_data = -1
@@ -244,6 +244,9 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
             if not crashes:
                 min_distance = distance
                 optimal_transfer_window_day = day
+
+    if optimal_transfer_window_day == -1:
+        return False
 
     # amu plecam la drum
     travel_results = {}
