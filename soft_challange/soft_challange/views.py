@@ -18,7 +18,7 @@ def save_file(file, new_name):
     :return: The path to the saved file
     """
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], new_name)
-    #ignore this warning lmao
+    # ignore this warning lmao
     request.files[file].save(filepath)
     return filepath
 
@@ -29,10 +29,11 @@ def proccess_planet_and_rocket_data() -> [[dict], dict]:
     :return:
     """
 
-    rocket_data_filepath = save_file('rocket_data_file', 'rocket_data_file.txt')
-    planteray_data_filepath = save_file('planetary_data_file', 'planetary_data_file.txt')
+    planetary_data_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'planetary_data_file.txt')
+    rocket_data_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'rocket_data_file.txt')
+
     # process the file and compute data
-    with open(planteray_data_filepath, 'r') as f:
+    with open(planetary_data_filepath, 'r') as f:
         planetary_data = f.read()
     with open(rocket_data_filepath, 'r') as f:
         rocket_data = f.read()
@@ -40,11 +41,14 @@ def proccess_planet_and_rocket_data() -> [[dict], dict]:
     return planets, rocket
 
 
-def proccess_solar_system_data():
+def proccess_solar_system_data()-> [[dict], dict]:
+    """
+    :return: the planets and rocket data
+    """
     planets, rocket = proccess_planet_and_rocket_data()
 
-    #add to them the solar system data as well
-    solar_system_filepath = save_file('solar_system_data_file', 'solar_system_data_file.txt')
+    # add to them the solar system data as well
+    solar_system_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'solar_system_data_file.txt')
     with open(solar_system_filepath, 'r') as f:
         solar_system_data = f.read()
 
@@ -69,6 +73,8 @@ def upload():
             flash('We need both planetary and rocket data for this!')
             return redirect(url_for('home'))
 
+        save_file('solar_system_data_file', 'solar_system_data_file.txt')
+
         planets, rocket = proccess_solar_system_data()
 
         return render_template('result.html', planets=planets, rocket=rocket, solar_system_data=True)
@@ -77,6 +83,9 @@ def upload():
         if not request.files['planetary_data_file']:
             flash('We need planetary data for this as well!')
             return redirect(url_for('home'))
+
+        save_file('rocket_data_file', 'rocket_data_file.txt')
+        save_file('planetary_data_file', 'planetary_data_file.txt')
 
         planets, rocket = proccess_planet_and_rocket_data()
 
@@ -87,12 +96,14 @@ def upload():
             flash('We need at least planetary data for this!')
             return redirect(url_for('home'))
 
-        planteray_data_filepath = save_file('planetary_data_file')
+        planteray_data_filepath = save_file('planetary_data_file', 'planetary_data_file.txt')
         # process the file and compute data
         with open(planteray_data_filepath, 'r') as f:
             data = f.read()
+
         computed_data = get_escape_velocities(data)
         return render_template('result.html', planets=computed_data)
+
     else:
         flash('Cmonnn upload *somethinggg*!!')
         return redirect(url_for('home'))
@@ -108,10 +119,7 @@ def travel():
         flash('These are the same planets, dummyy')
         return redirect(url_for('upload'))
 
-    solar_system_data = os.path.join(app.config['UPLOAD_FOLDER'], 'solar_system_data_file.txt')
-
     planets, rocket = proccess_solar_system_data()
+    travel_results = get_travel_data(planets, from_planet, to_planet)
 
-    travel_results = get_travel_data(solar_system_data, planets, rocket, from_planet, to_planet)
-
-    return render_template("travel.html", travel=travel_results, fromPlanet = from_planet, toPlanet = to_planet)
+    return render_template("travel.html", travel=travel_results, fromPlanet=from_planet, toPlanet=to_planet)
