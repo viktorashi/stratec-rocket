@@ -59,10 +59,10 @@ def parse_travel(travel_data: str, planetary_data: [dict]) -> [dict]:
     return planetary_data
 
 
-def get_travel_data(travel_data: str, planetary_data: [dict], rocket_data: dict, from_planet: str,
+def get_travel_data(solar_system_data: str, planetary_data: [dict], rocket_data: dict, from_planet: str,
                     to_planet: str) -> dict:
     """
-    :param travel_data: string from traveel.txt of the form:
+    :param solar_system_data: string from traveel.txt of the form:
         Mercury: period = 88 days, orbital radius = 0.39 AU
         Venus: period = 225 days, orbital radius = 0.72 AU
         Earth: period = 365 days, orbital radius = 1 AU
@@ -90,7 +90,7 @@ def get_travel_data(travel_data: str, planetary_data: [dict], rocket_data: dict,
 
     """
 
-    planets = parse_travel(travel_data, planetary_data)
+    planets = parse_travel(solar_system_data, planetary_data)
 
     from_planet_data = -1
     to_planet_data = -1

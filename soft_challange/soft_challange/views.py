@@ -52,13 +52,13 @@ def upload():
     ### daca vrem doar despre ce face reckta noastra cand decoleaza ne trebuie alea planetare,
     ### si alea planetare sunt singurele gen 'indenpendente' sa zic asa
 
-    if request.files['travel_data_file'].filename != '':
+    if request.files['solar_system_data_file'].filename != '':
         if not (request.files['planetary_data_file'] or request.files['rocket_data_file']):
             flash('We need both planetary and rocket data for this!')
             return redirect(url_for('home'))
 
         planets, rocket = proccess_planet_and_rocket_data()
-        save_file('travel_data_file', 'travel_data_file.txt')
+        save_file('solar_system_data_file', 'solar_system_data_file.txt')
 
         return render_template('result.html', planets=planets, rocket=rocket, travel_data=True)
 
@@ -97,10 +97,10 @@ def travel():
         flash('These are the same planets, dummyy')
         return redirect(url_for('upload'))
 
-    travel_data_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'travel_data_file.txt')
+    solar_system_data = os.path.join(app.config['UPLOAD_FOLDER'], 'solar_system_data_file.txt')
 
-    with open(travel_data_filepath, 'r') as f:
-        travel_data = f.read()
+    with open(solar_system_data, 'r') as f:
+        solar_system_data = f.read()
 
     planetary_data_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'planetary_data_file.txt')
     rocket_data_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'rocket_data_file.txt')
@@ -112,6 +112,6 @@ def travel():
         rocket_data = f.read()
     planets, rocket = get_escape_time_distance(planetary_data, rocket_data)
 
-    travel_results = get_travel_data(travel_data, planets, rocket, from_planet, to_planet)
+    travel_results = get_travel_data(solar_system_data, planets, rocket, from_planet, to_planet)
 
     return render_template("travel.html", travel=travel_results, fromPlanet = from_planet, toPlanet = to_planet)
