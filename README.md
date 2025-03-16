@@ -2,9 +2,9 @@
 ### THIS WAS AMAZING
 
 #### running it:
-first `cd` into the folder that contains this `README.md`, then
 ```bash
-cd soft_challange
+#yes, twice
+cd soft_challange/soft_challange
 ```
 so `pwd` returns somehting like `/path/to/soft_challange/soft_challange`
 then
