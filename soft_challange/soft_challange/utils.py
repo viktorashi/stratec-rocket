@@ -63,9 +63,10 @@ def parse_travel(travel_data: str, planetary_data: [dict]) -> [dict]:
     return planetary_data
 
 
-def get_travel_data(planets: [dict], from_planet: str,
-                    to_planet: str) -> dict:
+def get_stupid_travel_data(planets: [dict], from_planet: str,
+                           to_planet: str) -> dict:
     """
+    Simple version (stage 5)
     :param planets: returned by proccess_solar_system_data
     :param from_planet: from the form
     :param to_planet:  from the form
@@ -118,13 +119,70 @@ def get_travel_data(planets: [dict], from_planet: str,
                                                           from_planet_data['diameter'] * (10 ** 3) / 2,
                                                           to_planet_data['diameter'] * (10 ** 3) / 2, cruising_velocity)
 
-    #actually unreadable
+    # actually unreadable
     travel_results['total_travel_time'] = ((distance_between_planet_centers -
                                             from_planet_data['diameter'] * (10 ** 3) / 2 - to_planet_data[
                                                 'diameter'] * (10 ** 3) / 2)
                                            / cruising_velocity)
 
     return travel_results
+
+
+def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) -> dict:
+    """
+    Stage 5: Gets the same results as stage 3 but with
+    1. optimal_transfer_window in days or years whatever that shows
+    the day in which you start the travel starting from t0
+
+    2. the angular positions of the planets on that day
+
+    t0 will now be 100 years from when they were aligned
+
+    :param planets:
+    :param from_planet:
+    :param to_planet:
+    :return:
+    """
+
+    from_planet_data = -1
+    to_planet_data = -1
+
+    for planet in planets:
+        if planet['name'] == from_planet:
+            from_planet_data = planet
+        elif planet['name'] == to_planet:
+            to_planet_data = planet
+        elif from_planet_data != -1 and to_planet_data != -1:
+            break
+
+    t0 = 100 * 365  # 100 years
+    start_angular_positions = get_angular_positions(planets, t0)
+
+
+"""
+
+     planetele mele de unde pana unde vreau sa merg, intersecteaza traioectoria altor plenete (infara de alea de unde plec si ma duc) ? (poti sa stii de la inceput chestia asta)
+        salveaza o lista cu razele orbitale si razele lor normale gen la alea la care as putea sa le tai calea (sau ele mie mai bine zis)
+             [ [raza_orbitala, raza_planetei], ... ]
+        ai grija ca poate sa se intersecteze de 2 ori, uitate sa vezi daca mai ai raza aia orbitala salvata undeva
+        
+    afla punctele de intesectie intre traiectoria mea si a lor (raza, distanta_orbitala)
+         dictionar unde cheia e raza orbitala si valoarea un tuple cu unghiul la care le-am intersecta
+         { raza_orbitala: (unghi1, unghi2), ... }
+
+        
+     merg in fiecare zi
+        fa un dict care se updateaza in fiecare zi (doar daca se gaseste o distanta minima adica) cu unghiul la care e fiecare planeta de pe traiectoriia mea, unde cheia e raza orbitala la planeta ca oricum e unica
+            { orbital_radius: angular_position, ... } 
+            
+     e distanta mai mica decat ce am vazut inainte?
+        la distanta nu e greu, stiu unghiurile lor fac unghiu dintre ele: unghi = abs ( unghi1 - unghi2 )
+        d^2 = r1^2 + r2^2 - 2 * r1 * r2 * cos(unghi)
+        
+     daca da, ma uit: unde sunt astea fiecare pe care stiu ca le intersectez?
+         transform din coordonate radiale in carteziane si vad daca distanta dintre ( punctele mele de intersectie cu orbitele si punctul la care e centrul de masa al planetei [in ziua aia] pe care orbita sunt ) e mai mica decat raza planetei
+"""
+
 
 def get_angular_positions(planets, day):
     """
@@ -135,11 +193,12 @@ def get_angular_positions(planets, day):
 
     angular_positions = []
     for planet in planets:
-        angular_speed = 360 / planet['period'] # degrees per day
-        angular_position = (day * angular_speed) % 360 # degrees but it wraps around if it goes over 360
-        angular_positions.append([planet['name'], angular_position ] )
+        angular_speed = 360 / planet['period']  # degrees per day
+        angular_position = (day * angular_speed) % 360  # degrees but it wraps around if it goes over 360
+        angular_positions.append([planet['name'], angular_position])
 
     return angular_positions
+
 
 def calculate_escape_velocity(mass, radius) -> float:
     """
@@ -164,10 +223,10 @@ def calculate_escape_distance(acceleration, escape_time) -> float:
     return (acceleration * escape_time ** 2) / 2
 
 
-def calculate_cruise_time(distance_between_planets_centers, escape_distance, radius_from_planet, radius_to_planet,
+def calculate_cruise_time(distance, escape_distance, radius_from_planet, radius_to_planet,
                           cruising_velocity) -> float:
     return (
-            distance_between_planets_centers - 2 * escape_distance - radius_from_planet - radius_to_planet) / cruising_velocity
+            distance - 2 * escape_distance - radius_from_planet - radius_to_planet) / cruising_velocity
 
 
 def parse_rocket(file_data: str) -> dict:

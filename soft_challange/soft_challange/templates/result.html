@@ -58,9 +58,9 @@
     </table>
 
     {% if solar_system_data %}
-        <h3>From which to which planets do you want to travel?</h3>
-        <form action="{{ url_for('travel') }}" method="post" id="travelForm"
-              onsubmit="return travelFormSubmitHandler()">
+        <h3>From which to which planets do you want to travel? (medium difficulty Stage 5) </h3>
+        <form action="{{ url_for('medium_travel') }}" method="post" id="mediumTravelForm"
+              onsubmit="return mediumTravelFormSubmitHandler()">
             <div class="form-group">
                 <label for="from_planet">From:</label>
                 <select class="form-control" id="from_planet" name="from_planet">
@@ -75,7 +75,28 @@
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-success mt-3" id="travelSubmitButton">Get travel data</button>
+            <button type="submit" class="btn btn-success mt-3" id="mediumTravelSubmitButton">Get travel data</button>
+        </form>
+
+
+        <h3>From which to which planets do you want to travel? (stupidly) </h3>
+        <form action="{{ url_for('stupid_travel') }}" method="post" id="stupidTravelForm"
+              onsubmit="return stupidTravelFormSubmitHandler()">
+            <div class="form-group">
+                <label for="from_planet">From:</label>
+                <select class="form-control" id="from_planet" name="from_planet">
+                    {% for planet in planets %}
+                        <option value="{{ planet['name'] }}">{{ planet['name'] }}</option>
+                    {% endfor %}
+                </select>
+                <label for="to_planet">To:</label>
+                <select class="form-control" id="to_planet" name="to_planet">
+                    {% for planet in planets %}
+                        <option value="{{ planet['name'] }}">{{ planet['name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success mt-3" id="stupidTravelSubmitButton">Get travel data</button>
         </form>
         <div id="travelError" class="alert alert-danger mt-3" style="display: none"></div>
 

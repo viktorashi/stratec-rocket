@@ -1,6 +1,6 @@
 from flask import request, redirect, url_for, render_template, flash
 from soft_challange import app
-from utils import get_escape_velocities, get_escape_time_distance, get_travel_data, parse_travel, get_angular_positions
+from utils import get_escape_velocities, get_escape_time_distance, get_stupid_travel_data, parse_travel, get_angular_positions, get_medium_travel_data
 import os
 
 
@@ -109,8 +109,8 @@ def upload():
         return redirect(url_for('home'))
 
 
-@app.post('/travel')
-def travel():
+@app.post('/stupid_travel')
+def stupid_travel():
     # this will be a form with two select fields containing planet names their names are from_planet and to_planet, first check if they are different and giev a flash if not
     from_planet = request.form['from_planet']
     to_planet = request.form['to_planet']
@@ -120,9 +120,25 @@ def travel():
         return redirect(url_for('upload'))
 
     planets, rocket = proccess_solar_system_data()
-    travel_results = get_travel_data(planets, from_planet, to_planet)
+    travel_results = get_stupid_travel_data(planets, from_planet, to_planet)
 
-    return render_template("travel.html", travel=travel_results, fromPlanet=from_planet, toPlanet=to_planet)
+    return render_template("travel_stupid.html", travel=travel_results, fromPlanet=from_planet, toPlanet=to_planet)
+
+@app.post('/medium_travel')
+def medium_travel():
+    # this will be a form with two select fields containing planet names their names are from_planet and to_planet, first check if they are different and giev a flash if not
+    from_planet = request.form['from_planet']
+    to_planet = request.form['to_planet']
+
+    if from_planet == to_planet:
+        flash('These are the same planets, dummyy')
+        return redirect(url_for('upload'))
+
+    planets, rocket = proccess_solar_system_data()
+    travel_results = get_medium_travel_data(planets, from_planet, to_planet)
+
+    return render_template("travel_medium.html", travel=travel_results, fromPlanet=from_planet, toPlanet=to_planet)
+
 
 @app.post('/angular_positions')
 def angular_positions():
