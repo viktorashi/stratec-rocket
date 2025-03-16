@@ -107,22 +107,32 @@ def get_travel_data(travel_data: str, planetary_data: [dict], rocket_data: dict,
     if from_planet_data['escape_velocity'] > to_planet_data['escape_velocity']:
         cruising_velocity = from_planet_data['escape_velocity']
         escape_distanace = from_planet_data['escape_distance']
+        escape_time = from_planet_data['escape_time']
     else:
         cruising_velocity = to_planet_data['escape_velocity']
         escape_distanace = to_planet_data['escape_distance']
+        escape_time = to_planet_data['escape_time']
 
-    travel_results['escape_time'] = from_planet_data['escape_time']
-    travel_results['escape_distance'] = from_planet_data['escape_distance']
+    travel_results['escape_time'] = escape_time
+    travel_results['escape_distance'] = escape_distanace
 
+    # in AU's
     distance_between_planet_centers = abs(from_planet_data['orbital_radius'] - to_planet_data['orbital_radius'])
+
+    AU = 149597870.7 * (10 ** 3)  # 1 AU in meters
+
+    distance_between_planet_centers = distance_between_planet_centers * AU
 
     # long boi
     travel_results['cruise_time'] = calculate_cruise_time(distance_between_planet_centers, escape_distanace,
-                                                          from_planet_data['diameter'] / 2,
-                                                          to_planet_data['diameter'] / 2, cruising_velocity)
+                                                          from_planet_data['diameter'] * (10 ** 3) / 2,
+                                                          to_planet_data['diameter'] * (10 ** 3) / 2, cruising_velocity)
 
-    travel_results['total_travel_time'] = (distance_between_planet_centers - from_planet_data['diameter'] / 2 -
-                                           to_planet_data['diameter'] / 2) / cruising_velocity
+    #actually unreadable
+    travel_results['total_travel_time'] = ((distance_between_planet_centers -
+                                            from_planet_data['diameter'] * (10 ** 3) / 2 - to_planet_data[
+                                                'diameter'] * (10 ** 3) / 2)
+                                           / cruising_velocity)
 
     return travel_results
 
