@@ -178,6 +178,6 @@ def angular_positions():
         return redirect(url_for('upload'))
 
     planets = proccess_solar_system_data()[0]
-    angular_positions = get_angular_positions(planets, day)
+    angular_positions_list = get_angular_positions(planets, day)
 
-    return render_template("positions.html", angular_positions=angular_positions, day=day)
+    return render_template("positions.html", angular_positions=angular_positions_list, day=day)
