@@ -223,7 +223,7 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
             break
 
     t0 = 100 * 365  # 100 years
-    min_distance = 999999999999999999999999999999999999999999999999  # TODO stiu ca pot sa iau doar diametrul de la cel mai departe but idk
+    min_distance = 9999999999999999999999999999999999999999999  # TODO stiu ca pot sa iau doar diametrul de la cel mai departe but idk this just simpler
     optimal_transfer_window_day = -1
 
     # looks in the future for 10 years
@@ -368,7 +368,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str) -> 
             break
 
     t0 = 100 * 365  # 100 years
-    min_distance = 999999999999999999999999999999999999999999999999  # TODO stiu ca pot sa iau doar diametrul de la cel mai departe but idk
+    min_distance = 9999999999999999999999999999999999999999999  # TODO stiu ca pot sa iau doar diametrul de la cel mai departe but idk
     optimal_transfer_window_day = -1
     optimal_escape_time = -1
     optimal_escape_distance =-1

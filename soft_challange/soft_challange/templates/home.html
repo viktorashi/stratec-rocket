@@ -8,7 +8,7 @@
 </head>
 <body>
 <div class="container">
-    <h1 class="mt-5">Upload a .txt File</h1>
+    <h1 class="mt-5">Only .txt Files</h1>
 
     {% with messages = get_flashed_messages() %}
       {% if messages %}
@@ -21,20 +21,26 @@
     {% endwith %}
 
     <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
-        <div class="form-group">
-            <input type="file" class="form-control-file" id="planetary_data_file" name="planetary_data_file">
-            <div class="drag-drop-area" id="planetary-drag-drop-area">
-                Drop the planetary data here
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <input type="file" class="form-control-file" id="planetary_data_file" name="planetary_data_file">
+                <div class="drag-drop-area" id="planetary-drag-drop-area">
+                    Drop the planetary data here
+                </div>
             </div>
 
-            <input type="file" class="form-control-file" id="rocket_data_file" name="rocket_data_file">
-            <div class="drag-drop-area" id="rocket-drag-drop-area">
-                Drop the rocket data here
+            <div class="form-group col-md-4">
+                <input type="file" class="form-control-file" id="rocket_data_file" name="rocket_data_file">
+                <div class="drag-drop-area" id="rocket-drag-drop-area">
+                    Drop the rocket data here
+                </div>
             </div>
 
-            <input type="file" class="form-control-file" id="solar_system_data_file" name="solar_system_data_file">
-            <div class="drag-drop-area" id="solar-system-drag-drop">
-                Drop the solar system data here
+            <div class="form-group col-md-4">
+                <input type="file" class="form-control-file" id="solar_system_data_file" name="solar_system_data_file">
+                <div class="drag-drop-area" id="solar-system-drag-drop">
+                    Drop the solar system data here
+                </div>
             </div>
         </div>
 
