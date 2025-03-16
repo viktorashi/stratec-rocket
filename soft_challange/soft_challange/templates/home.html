@@ -9,15 +9,16 @@
 <body>
 <div class="container">
     <h1 class="mt-5">Only .txt Files</h1>
+    <p> You can upload however many you want (with some conditions that you will be warned about, of courrse)</p>
 
     {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="alert alert-warning mt-3">
-          {% for message in messages %}
-            <p>{{ message }}</p>
-          {% endfor %}
-        </div>
-      {% endif %}
+        {% if messages %}
+            <div class="alert alert-warning mt-3">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
     {% endwith %}
 
     <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
