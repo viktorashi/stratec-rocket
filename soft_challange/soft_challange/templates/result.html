@@ -31,6 +31,10 @@
                 <th>Escape Time (s)</th>
                 <th>Escape Distance (m)</th>
             {% endif %}
+            {% if solar_system_data %}
+                <th>Distance from Sun (AU)</th>
+                <th>Orbital Period (days)</th>
+            {% endif %}
         </tr>
         </thead>
         <tbody>
@@ -44,12 +48,16 @@
                     <td> {{ planet['escape_time'] }} </td>
                     <td> {{ planet['escape_distance'] }} </td>
                 {% endif %}
+                {% if solar_system_data %}
+                    <td> {{ planet['orbital_radius'] }} </td>
+                    <td> {{ planet['period'] }} </td>
+                {% endif %}
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-    {% if travel_data %}
+    {% if solar_system_data %}
         <h3>From which to which planets do you want to travel?</h3>
         <form action="{{ url_for('travel') }}" method="post" id="travelForm"
               onsubmit="return travelFormSubmitHandler()">

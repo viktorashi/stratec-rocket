@@ -33,7 +33,10 @@ def get_escape_time_distance(planetary_data: str, rocket_data: str) -> [dict]:
 
 def parse_travel(travel_data: str, planetary_data: [dict]) -> [dict]:
     """
-    Obtains list of planets but with orbital radii now
+    Obtains list of planets but with orbital radii (in AU) and periods (in days) now
+
+    planet['orbital_radius']
+    planet['period']
 
     :param travel_data: file of the form
         Mercury: period = 88 days, orbital radius = 0.39 AU
@@ -54,12 +57,13 @@ def parse_travel(travel_data: str, planetary_data: [dict]) -> [dict]:
         for line in travel_data.split('\n'):
             if planet['name'] in line:
                 planet['orbital_radius'] = float(line.split('=')[2].split(' ')[1])
+                planet['period'] = float(line.split('=')[1].split(' ')[1])
                 break
 
     return planetary_data
 
 
-def get_travel_data(solar_system_data: str, planetary_data: [dict], rocket_data: dict, from_planet: str,
+def get_travel_data(solar_system_data: str, planets: [dict], rocket_data: dict, from_planet: str,
                     to_planet: str) -> dict:
     """
     :param solar_system_data: string from traveel.txt of the form:
@@ -73,7 +77,7 @@ def get_travel_data(solar_system_data: str, planetary_data: [dict], rocket_data:
         Neptune: period = 60148 days, orbital radius = 30.06 AU
         Pluto: period = 90560 days, orbital radius = 39.6 AU
 
-    :param planetary_data: returned by get_escape_time_distance
+    :param planets: returned by get_escape_time_distance
     :param rocket_data: returned by get_escape_time_distance
     :param from_planet: from the form
     :param to_planet:  from the form
@@ -89,8 +93,6 @@ def get_travel_data(solar_system_data: str, planetary_data: [dict], rocket_data:
     # ( in days, hours, minutes, seconds)
 
     """
-
-    planets = parse_travel(solar_system_data, planetary_data)
 
     from_planet_data = -1
     to_planet_data = -1

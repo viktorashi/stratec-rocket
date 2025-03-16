@@ -1,6 +1,6 @@
 from flask import request, redirect, url_for, render_template, flash
 from soft_challange import app
-from utils import get_escape_velocities, get_escape_time_distance, get_travel_data
+from utils import get_escape_velocities, get_escape_time_distance, get_travel_data, parse_travel
 import os
 
 
@@ -40,6 +40,18 @@ def proccess_planet_and_rocket_data() -> [[dict], dict]:
     return planets, rocket
 
 
+def proccess_solar_system_data():
+    planets, rocket = proccess_planet_and_rocket_data()
+
+    #add to them the solar system data as well
+    solar_system_filepath = save_file('solar_system_data_file', 'solar_system_data_file.txt')
+    with open(solar_system_filepath, 'r') as f:
+        solar_system_data = f.read()
+
+    planets = parse_travel(solar_system_data, planets)
+
+    return planets, rocket
+
 @app.get('/')
 def home():
     return render_template("home.html")
@@ -57,10 +69,9 @@ def upload():
             flash('We need both planetary and rocket data for this!')
             return redirect(url_for('home'))
 
-        planets, rocket = proccess_planet_and_rocket_data()
-        save_file('solar_system_data_file', 'solar_system_data_file.txt')
+        planets, rocket = proccess_solar_system_data()
 
-        return render_template('result.html', planets=planets, rocket=rocket, travel_data=True)
+        return render_template('result.html', planets=planets, rocket=rocket, solar_system_data=True)
 
     if request.files['rocket_data_file'].filename != '':
         if not request.files['planetary_data_file']:
@@ -99,18 +110,7 @@ def travel():
 
     solar_system_data = os.path.join(app.config['UPLOAD_FOLDER'], 'solar_system_data_file.txt')
 
-    with open(solar_system_data, 'r') as f:
-        solar_system_data = f.read()
-
-    planetary_data_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'planetary_data_file.txt')
-    rocket_data_filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'rocket_data_file.txt')
-
-    # process the file and compute data
-    with open(planetary_data_filepath, 'r') as f:
-        planetary_data = f.read()
-    with open(rocket_data_filepath, 'r') as f:
-        rocket_data = f.read()
-    planets, rocket = get_escape_time_distance(planetary_data, rocket_data)
+    planets, rocket = proccess_solar_system_data()
 
     travel_results = get_travel_data(solar_system_data, planets, rocket, from_planet, to_planet)
 
