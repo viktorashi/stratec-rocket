@@ -114,4 +114,4 @@ def travel():
 
     travel_results = get_travel_data(travel_data, planets, rocket, from_planet, to_planet)
 
-    return render_template("travel.html", travel=travel_results)
+    return render_template("travel.html", travel=travel_results, fromPlanet = from_planet, toPlanet = to_planet)

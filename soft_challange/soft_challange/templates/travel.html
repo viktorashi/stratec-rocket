@@ -7,11 +7,13 @@
 </head>
 <body>
 <div class="container">
-    <h1 class="mt-5">Travel Data</h1>
+    <h1 class="mt-5">Travel Data between <i>{{ fromPlanet }}</i> -> <i>{{ toPlanet }}</i> </h1>
     <ul class="list-group mt-3">
         <li class="list-group-item"><b>Escape Time</b>: {{ travel.escape_time }}</li>
         <li class="list-group-item"><b>Escape Distance</b>: {{ travel.escape_distance }}</li>
         <li class="list-group-item"><b>Cruise Time</b>: {{ travel.cruise_time }}</li>
+        <li class="list-group-item"><b>Desscellerate distance</b>; the distance from destination planet at which is starts descceleration: {{ travel.escape_distance }}</li>
+        <li class="list-group-item"><b>Desscellerate time</b>; time it will take to descellerate to the destination planet's surface : {{ travel.escape_time }}</li>
         <li class="list-group-item"><b>Total Travel Time</b>: {{ travel.total_travel_time }}</li>
     </ul>
     <a href="{{ url_for('home') }}" class="btn btn-primary mt-3">Back to Home</a>
