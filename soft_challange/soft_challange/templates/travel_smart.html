@@ -7,7 +7,8 @@
 </head>
 <body>
 <div class="container">
-    <h1 class="mt-5">Travel Data between <i>{{ fromPlanet }}</i> -> <i>{{ toPlanet }}</i> <sub>(with planets actually moving whilst the rocket also moves) </sub></h1>
+    <h1 class="mt-5">Travel Data between <i>{{ fromPlanet }}</i> -> <i>{{ toPlanet }}</i> <sub>(with planets actually
+        moving whilst the rocket also moves) </sub></h1>
     <ul class="list-group mt-3">
         <li class="list-group-item"><b>Escape Time</b>: {{ travel.escape_time }} seconds from take-off</li>
         <li class="list-group-item"><b>Escape Distance</b>: {{ travel.escape_distance }} meters from start planet</li>
@@ -38,10 +39,10 @@
         </tr>
         </thead>
         <tbody>
-        {% for position in travel.start_angular_positions %}
+        {% for planet_name in travel.start_angular_positions %}
             <tr>
-                <td>{{ position[0] }}</td>
-                <td>{{ position[1] }}</td>
+                <td>{{ planet_name }}</td>
+                <td>{{ travel.start_angular_positions[planet_name][0] }}</td>
             </tr>
         {% endfor %}
         </tbody>
@@ -56,10 +57,10 @@
         </tr>
         </thead>
         <tbody>
-        {% for position in travel.end_angular_positions %}
+        {% for planet_name in travel.end_angular_positions %}
             <tr>
-                <td>{{ position[0] }}</td>
-                <td>{{ position[1] }}</td>
+                <td>{{ planet_name }}</td>
+                <td>{{ travel.end_angular_positions[planet_name][0] }}</td>
             </tr>
         {% endfor %}
         </tbody>

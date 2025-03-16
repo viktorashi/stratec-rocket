@@ -231,16 +231,8 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
         angular_positions = get_angular_positions(planets, t0 + day)
 
         # angle between the two planets
-        from_planet_angle = -1
-        to_planet_angle = -1
-
-        for planet in angular_positions:
-            if planet[0] == from_planet:
-                from_planet_angle = planet[1]
-            elif planet[0] == to_planet:
-                to_planet_angle = planet[1]
-            elif from_planet_angle != -1 and to_planet_angle != -1:
-                break
+        from_planet_angle = angular_positions[from_planet][0]
+        to_planet_angle = angular_positions[to_planet][0]
 
         angle = abs(from_planet_angle - to_planet_angle)
         # in metrii
@@ -250,8 +242,8 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
         distance = sqrt(r1 ** 2 + r2 ** 2 - 2 * r1 * r2 * cos(angle))
         if distance < min_distance:
             crashes = False
-            for angle_position in angular_positions:
-                planet_name, angular_position, orbit_radius, planet_radius = angle_position
+            for planet_name in angular_positions:
+                angular_position, orbit_radius, planet_radius = angular_positions[planet_name]
                 orbit_radius = orbit_radius * AU  # in metrii
                 if not (planet_name == from_planet or planet_name == to_planet):
                     # coordinates of the source and destination planets in cartesian
@@ -517,8 +509,8 @@ def does_it_crash(lambda_intersect, distance, escape_distance, cruising_velocity
     new_angle = (+ angular_movement) % 360
 
     # position of that planet at that time
-    x_planet = planet['orbital_radius'] * cos(new_angle)
-    y_planet = planet['orbital_radius'] * sin(new_angle)
+    x_planet = planet['orbital_radius'] * AU * cos(new_angle)
+    y_planet = planet['orbital_radius'] * AU * sin(new_angle)
 
     # position of our rocket at that time
     [xintersect, yintersect] = [lambda_intersect * x1 + (1 - lambda_intersect) * x2,
@@ -538,20 +530,20 @@ def get_angular_position(period, day:float) -> float:
     return (day * angular_speed) % 360
 
 
-def get_angular_positions(planets, day: int) -> [tuple[str, int, float, int]]:
+def get_angular_positions(planets, day: int) -> [dict[int, float, int]]:
     """
     :param planets: list of planets with orbital radii and periods
     :param day: the day for which we want the positions
-    :return: list of tuples (planet_name, angular_position, orbit_radius, planet_radius)
+    :return: dict of tuples key : planet_name : (angular_position, orbit_radius, planet_radius)
     """
 
-    angular_positions = []
+    angular_positions = {}
     for planet in planets:
         angular_speed = 360 / planet['period']  # degrees per day
         angular_position = (day * angular_speed) % 360  # degrees but it wraps around if it goes over 360
-        orbit_radius = planet['orbital_radius']
+        orbit_radius = planet['orbital_radius'] * AU
         planet_radius = planet['diameter'] / 2
-        angular_positions.append([planet['name'], angular_position, orbit_radius, planet_radius])
+        angular_positions[planet['name']] = [angular_position, orbit_radius, planet_radius]
 
     return angular_positions
 
