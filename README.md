@@ -12,7 +12,7 @@ then
 pip install -r requirements.txt
 flask --app . run
 ```
-and now you can access your localhost server with the app.
+and now you can access the app through your localhost or 127.000 or whatever
 
 
 <br>
