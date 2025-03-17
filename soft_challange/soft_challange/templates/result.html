@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Result</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/cursor.css">
+
 </head>
 <body>
 <div class="container">
@@ -60,7 +62,7 @@
         {#        ala destept rau #}
         <h3>From which to which planets do you want to travel?
             <br/>
-            WARNING : It will load for <b>a whilee</b>  because it'll be brewing a little suprise
+            WARNING : It will load for <b>a whilee</b> because it'll be brewing a little suprise
             <br/>
             (brazy difficulty Stage 6) </h3>
         <form action="{{ url_for('smart_travel') }}" method="post" id="smartTravelForm"
@@ -79,7 +81,8 @@
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-success mt-3" id="smartTravelSubmitButton">Get stage 6 travel data</button>
+            <button type="submit" class="btn btn-success mt-3" id="smartTravelSubmitButton">Get stage 6 travel data
+            </button>
         </form>
 
 
@@ -101,7 +104,8 @@
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-warning mt-3" id="mediumTravelSubmitButton">Get stage 5 travel data</button>
+            <button type="submit" class="btn btn-warning mt-3" id="mediumTravelSubmitButton">Get stage 5 travel data
+            </button>
         </form>
 
 
@@ -123,7 +127,8 @@
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-secondary mt-3" id="stupidTravelSubmitButton">Get stage 3 travel data</button>
+            <button type="submit" class="btn btn-secondary mt-3" id="stupidTravelSubmitButton">Get stage 3 travel data
+            </button>
         </form>
         <div id="travelError" class="alert alert-danger mt-3" style="display: none"></div>
 
