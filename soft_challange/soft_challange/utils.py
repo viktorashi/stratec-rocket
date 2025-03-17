@@ -199,9 +199,12 @@ def get_stupid_travel_data(planets: [dict], from_planet: str,
 """
 
 
-def plot_planets(angles:list[float], planets_radii:list[float], planet_colors: list[str] | list[float], orbit_radii: int | float | list[float] | ndarray, planet_names: list[str], planet1_name:str,
-                 planet2_name :str,
-                 saveto_filename: str):
+def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: int | float | list[float] | ndarray,
+                 planet_colors: list[str] | list[float], planet_names: list[str], planet1_name: str,
+                 planet2_name: str,
+                 saveto_filename: str,
+                 x_planet1_init=None, y_planet1_init=None, x_planet2_final=None, y_planet2_final=None):
+
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
 
@@ -238,11 +241,19 @@ def plot_planets(angles:list[float], planets_radii:list[float], planet_colors: l
         ax.add_patch(planet_circle)
         ax.text(x_planet, y_planet, f' {name}', fontsize=10, verticalalignment='bottom')
 
+    # se foloseste cand vrei sa faci animatie ca nu t-i se schimba traiectoria in timp ce zbori
+    if None not in [x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final]:
+        ax.plot([x_planet1_init, x_planet2_final], [y_planet1_init, y_planet2_final], 'r-', linewidth=2,
+                label=f"{planet1_name} → {planet2_name}")
+
     # Draw a line between the selected planets
-    if planet1_name in planet_positions and planet2_name in planet_positions:
+    elif planet1_name in planet_positions and planet2_name in planet_positions:
         x1, y1 = planet_positions[planet1_name]
         x2, y2 = planet_positions[planet2_name]
-        ax.plot([x1, x2], [y1, y2], 'r-', linewidth=2, label=f"{planet1_name} ↔ {planet2_name}")
+        ax.plot([x1, x2], [y1, y2], 'r-', linewidth=2, label=f"{planet1_name} → {planet2_name}")
+    else:
+        raise ValueError(f"Invalid planet names: {planet1_name}, {planet2_name} ORR either you have only partially set initial and final positions")
+
 
     # Mark the center (could be the star)
     ax.plot(0, 0, 'yo', markersize=12, label='Center')
@@ -251,7 +262,7 @@ def plot_planets(angles:list[float], planets_radii:list[float], planet_colors: l
     ax.set_ylabel('Y')
     ax.legend()
     plt.savefig(saveto_filename)
-
+    plt.close()
 
 def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) -> dict | bool:
     """
@@ -390,25 +401,95 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
 
     planets_angles = [angle[0] for angle in travel_results['angular_positions'].values()]
     planets_names = [planet for planet in travel_results['angular_positions']]
+    #todo vezi astea batute in cui sa verifici mai intai daca sunt ok ca oricum daca faci alt isstem solar sau mai pui una iti da list index out of range
     planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
     max_planet_diameter = max([planet['diameter'] for planet in planets])
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
 
     # TODO ai putea sa faci su cu orbitele alea reale da dupa nu se pream ai vede bine
-    plot_planets(planets_angles, planets_radii_proportional, planets_colors, 1, planets_names,
+    plot_planets(planets_angles, planets_radii_proportional, 1, planets_colors, planets_names,
                  from_planet, to_planet, 'static/planets.png')
     # this time accurately with the plante radii
     largest_orbit_radius = max([planet['orbital_radius'] for planet in planets])
     planets_proportional_orbit_radii = [planet['orbital_radius'] / largest_orbit_radius for planet in planets]
     planets_proportional_orbit_radii = np.array(planets_proportional_orbit_radii)
 
-
-    plot_planets(planets_angles, planets_radii_proportional, planets_colors, planets_proportional_orbit_radii* 19, planets_names,
+    # I mean we need to see it as wel smr
+    plot_planets(planets_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_colors,
+                 planets_names,
                  from_planet, to_planet, 'static/planets-accurate.png')
 
-    # I mean we need to see it as wel smr
 
     return travel_results
+
+
+
+def animate_planets(init_angles: list[float], final_angles: list[float],
+                    planets_radii: list[float],
+                    orbit_radii: int | float | list[float] | ndarray,
+                    planet_colors: list[str] | list[float], planet_names: list[str], planet1_name: str,
+                    planet2_name: str,
+                    number_of_frames: int,
+                    saveto_filename: str):
+    """
+    :param init_angles:
+    :param planets_radii:
+    :param orbit_radii: either int | float for a constant STEP which every orbit takes, or a list[float] | ndarray with the radii of each orbit
+    :param final_angles:
+    :param planet_colors:
+    :param planet_names:
+    :param planet1_name:
+    :param planet2_name:
+    :param number_of_frames:
+    :param saveto_filename:
+    :return:
+    """
+    x_planet1_init = -1
+    y_planet1_init = -1
+    x_planet2_final = -1
+    y_planet2_final = -1
+
+    for i, planet_name in enumerate(planet_names):
+        if planet_name == planet1_name:
+            if type(orbit_radii) == int or type(orbit_radii) == float:
+                orbit_radius = (i + 1) * orbit_radii
+                x_planet1_init = orbit_radius * cos(init_angles[i])
+                y_planet1_init = orbit_radius * sin(init_angles[i])
+            else:
+                x_planet1_init = orbit_radii[i] * cos(init_angles[i])
+                y_planet1_init = orbit_radii[i] * sin(init_angles[i])
+        elif planet_name == planet2_name:
+            if type(orbit_radii) == int or type(orbit_radii) == float:
+                orbit_radius = (i + 1) * orbit_radii
+                x_planet2_final = orbit_radius * cos(final_angles[i])
+                y_planet2_final = orbit_radius * sin(final_angles[i])
+            else:
+                x_planet2_final = orbit_radii[i] * cos(final_angles[i])
+                y_planet2_final = orbit_radii[i] * sin(final_angles[i])
+
+        elif x_planet1_init != -1 and x_planet2_final != -1:
+            break
+
+    for frame_no in range(number_of_frames):
+        path_proportion = frame_no / number_of_frames
+        angles = [init_angle + (final_angle - init_angle) * path_proportion for init_angle, final_angle in
+                  zip(init_angles, final_angles)]
+
+        plot_planets(angles, planets_radii, orbit_radii, planet_colors, planet_names, planet1_name, planet2_name,
+                     f'frames/frame_{frame_no}.png', x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final)
+
+    # face JIF
+    import imageio.v3 as iio
+
+    images = []
+    for frame_no in range(number_of_frames):
+        images.append(iio.imread(f'frames/frame_{frame_no}.png'))
+    iio.imwrite(saveto_filename, images, loop=0)
+
+    # erau temp frameurile astea
+    import os
+    for frame_no in range(number_of_frames):
+        os.remove(f'frames/frame_{frame_no}.png')
 
 
 def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, rocket: dict) -> dict | bool:
@@ -424,7 +505,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     """
     cand se uita daca se 
     as face gen asemanator numai ca acum cand aflu lambda de intersectie potentiala vad cati km a parscurs din distanta
-    
+
     lambda = 0 - sfarsit de drum
     labda = 1 - inceput de drum
     """
@@ -484,10 +565,8 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
             from_planet_angle), bracket=[0, 99999999999])
 
         # Print the solution
-        if total_time_sol.converged:
-            print(f"Solution for T: {total_time_sol.root}")
-        else:
-            print("No solution found!")
+        if not total_time_sol.converged:
+            print("No solution found! oops se mai intampla")
 
         total_time_sol = total_time_sol.root
         cruising_time = total_time_sol - 2 * escape_time
@@ -566,6 +645,27 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     travel_results["end_angular_positions"] = get_angular_positions(planets,
                                                                     t0 + optimal_transfer_window_day + travel_results[
                                                                         'total_travel_time'])
+
+    init_planet_angles = [angle[0] for angle in travel_results['start_angular_positions'].values()]
+    final_planet_angles = [angle[0] for angle in travel_results['end_angular_positions'].values()]
+
+    planets_names = [planet['name'] for planet in planets]
+    #todo vezi astea batute in cui sa verifici mai intai daca sunt ok ca oricum daca faci alt isstem solar sau mai pui una iti da list index out of range
+    planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
+    max_planet_diameter = max([planet['diameter'] for planet in planets])
+    planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
+
+    # TODO ai putea sa faci su cu orbitele alea reale da dupa nu se pream ai vede bine
+    animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_colors,
+                    planets_names, from_planet, to_planet, 100, 'static/planets_animation.gif')
+
+    # this time accurately with the plante radii
+    largest_orbit_radius = max([planet['orbital_radius'] for planet in planets])
+    planets_proportional_orbit_radii = [planet['orbital_radius'] / largest_orbit_radius for planet in planets]
+    planets_proportional_orbit_radii = np.array(planets_proportional_orbit_radii)
+
+    animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_colors,
+                    planets_names, from_planet, to_planet, 100, 'static/planets_animation_accurate.gif')
 
     return travel_results
 

@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <title>Travel Data</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/travel_data.css">
 </head>
 <body>
 <div class="container">
     <h1 class="mt-5">Travel Data between <i>{{ fromPlanet }}</i> -> <i>{{ toPlanet }}</i> <sub>(with planets actually
         moving whilst the rocket also moves) </sub></h1>
+
+    <img src="../static/planets_animation.gif" alt="Planets" class="img-fluid mt-3">
+
     <ul class="list-group mt-3">
         <li class="list-group-item"><b>Escape Time</b>: {{ travel.escape_time }} seconds from take-off</li>
         <li class="list-group-item"><b>Escape Distance</b>: {{ travel.escape_distance }} meters from start planet</li>
@@ -68,6 +72,10 @@
 
 
     <a href="{{ url_for('home') }}" class="btn btn-primary mt-3">Back to Home</a>
+
+    <h5>Aight this really should look too good buttt it's more "accurate" because the orbits are proportional</h5>
+    <img src="../static/planets_animation_accurate.gif" alt="Planets" class="img-fluid mt-3">
+
 </div>
 
 <script src="../static/travel_stupid.js"></script>
