@@ -6,10 +6,42 @@
     border-radius: 5px;
     padding: 20px;
     text-align: center;
-    /*color: #007bff;*/
+    color: #e9ecef;
     cursor: pointer;
-    }
+    /*color: #007bff;*/
+}
+
+input {
+    color: #e9ecef;
+}
 
 .drag-drop-area.dragover {
-    background-color: #e9ecef;
+    color: #FFD700;
+}
+
+.drag-drop-area:hover, .form-row:hover, .drag-drop-area.dragover {
+    cursor: url("lil_reversed_rocket_cursor.png"), auto;
+}
+
+.form-row {
+    background-image: url('deepspace.png');
+    background-size: cover;
+    display: flex;
+}
+
+.form-group {
+    flex: 1;
+    background-size: 300%; /* Adjust based on the number of form groups */
+}
+
+.form-group:nth-child(1) {
+    background-position: left;
+}
+
+.form-group:nth-child(2) {
+    background-position: center;
+}
+
+.form-group:nth-child(3) {
+    background-position: right;
 }

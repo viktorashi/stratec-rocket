@@ -1,0 +1,7 @@
+html {
+    cursor: url("lil_rocket_cursor.png"), auto;
+}
+
+select, button ,input {
+    cursor: url("lil_reversed_rocket_cursor.png"), auto;
+}

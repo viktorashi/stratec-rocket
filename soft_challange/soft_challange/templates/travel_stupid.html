@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Travel Data</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/cursor.css">
 </head>
 <body>
 <div class="container">
@@ -29,11 +30,21 @@
 
 <script src="../static/travel_stupid.js"></script>
 <script type="text/javascript">
-    const { days: totalDays, hours:totalHours, minutes:totalMinutes, seconds:totalSeconds } = convertSeconds({{travel.total_travel_time}});
+    const {
+        days: totalDays,
+        hours: totalHours,
+        minutes: totalMinutes,
+        seconds: totalSeconds
+    } = convertSeconds({{travel.total_travel_time}});
     const totalTravelTime = document.getElementById('total-travel-time-readable');
     totalTravelTime.innerText = `${totalDays} days, ${totalHours} hours, ${totalMinutes} minutes, ${totalSeconds} seconds`;
 
-    const {days : cruiseDays, hours: cruiseHours, minutes: cruiseMinutes, seconds: cruiseSeconds} = convertSeconds({{travel.cruise_time}});
+    const {
+        days: cruiseDays,
+        hours: cruiseHours,
+        minutes: cruiseMinutes,
+        seconds: cruiseSeconds
+    } = convertSeconds({{travel.cruise_time}});
     const cruiseTime = document.getElementById('cruise-time-readable');
     cruiseTime.innerText = `${cruiseDays} days, ${cruiseHours} hours, ${cruiseMinutes} minutes, ${cruiseMinutes} seconds`;
 </script>
