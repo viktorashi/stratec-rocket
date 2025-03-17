@@ -332,12 +332,13 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     return travel_results
 
 
-def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str) -> dict | bool:
+def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, rocket: dict) -> dict | bool:
     """
     Stage 6: Gets the same results as stage 5 but with the planets now moving WHILE the rocket is also en route
     :param planets: returned by proccess_solar_system_data
     :param from_planet: user selected from form
     :param to_planet: user selected from form
+    :param rocket: {"acceleration" : acc, "engine_count" : no_of_engines}
     :return:
     """
 
@@ -361,9 +362,10 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str) -> 
             break
 
     t0 = 100 * 365  # 100 years
+    # minimum TOTAL distance
     min_distance = 9999999999999999999999999999999999999999999  # TODO stiu ca pot sa iau doar diametrul de la cel mai departe but idk
     optimal_transfer_window_day = -1
-    optimal_cruising_time =-1
+    optimal_cruising_time = -1
 
     if from_planet_data['escape_velocity'] > to_planet_data['escape_velocity']:
         cruising_velocity = from_planet_data['escape_velocity']
@@ -377,9 +379,12 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str) -> 
     # radii in meters
     r1 = from_planet_data['orbital_radius'] * AU
     r2 = to_planet_data['orbital_radius'] * AU
+    destination_angular_velocity = 360 / to_planet_data['period']
 
+    # ok re zolvat pt total trabvel time is dupa ne dam seama cat vine fiecare stage de travel
     import numpy as np
-    from scipy.optimize import minimize
+    from scipy.optimize import root_scalar
+
 
     for day in range(365 * 10):
 
@@ -387,28 +392,36 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str) -> 
         # get_angular_positions(planets,t0 + day + travel_time_to_intersect)
 
         # faci functia de distanta in functie de cruise_time
-        destination_angular_velocity = 360 / to_planet_data['period']
         to_planet_init_angle = get_angular_position(to_planet_data['period'], t0 + day)
         from_planet_angle = get_angular_position(from_planet_data['period'], t0 + day)
 
-        # cruising time
-        dist_func = lambda t_c: \
-            np.sqrt((r2 * np.cos(
-                to_planet_init_angle - destination_angular_velocity * (2 * escape_time + t_c)) - r1 * np.cos(
-                from_planet_angle)) ** 2 + (r2 * np.sin(
-                to_planet_init_angle - destination_angular_velocity * (2 * escape_time + t_c)) - r1 * np.sin(
-                from_planet_angle)) ** 2)
 
-        # cruising_times for which the distance is a minimum
-        result = minimize(dist_func, 1)
-        cruising_time = result.jac[0]
-        distance = result.fun
+        # Define the function to find T
+        def equation(T, v, a, Rd, Rs, theta_d0, omega_d, theta_s):
+            lhs = v * T - v ** 2 / a
+            rhs = np.sqrt((Rd * np.cos(theta_d0 - omega_d * T) - Rs * np.cos(theta_s)) ** 2 +
+                          (Rd * np.sin(theta_d0 - omega_d * T) - Rs * np.sin(theta_s)) ** 2)
+            return lhs - rhs
 
-        to_planet_final_angle = get_angular_position(to_planet_data['period'],
-                                                     t0 + day + (cruising_time + 2 * escape_time) / 86400)
+        total_time_sol = root_scalar(equation, args=(
+            cruising_velocity, rocket['acceleration'], r2, r1, to_planet_init_angle, destination_angular_velocity,
+            from_planet_angle), bracket=[0, 99999999999])
+
+        # Print the solution
+        if total_time_sol.converged:
+            print(f"Solution for T: {total_time_sol.root}")
+        else:
+            print("No solution found!")
+
+        total_time_sol = total_time_sol.root
+        cruising_time = total_time_sol- 2 * escape_time
+        distance = cruising_velocity * cruising_time + 2 * escape_distanace
+        to_planet_final_angle = get_angular_position(to_planet_data['period'], t0 + day + total_time_sol / 86400)
 
         if distance < min_distance:
             crashes = False
+
+            #does it crash into any planets on its way?
             for planet in planets:
                 planet_name = planet['name']
                 orbit_radius = planet['orbital_radius'] * AU
@@ -436,6 +449,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str) -> 
                                          escape_time,
                                          x1, x2, y1, y2, planet):
                             crashes = True
+                            #lasa, uita-te in alta zi
                             break
 
                     # delta > 0, 2 intersectii
@@ -450,18 +464,14 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str) -> 
                                 crashes = True
                                 break
                         if crashes:
+                            #lasa, uita-te in alta zi nu te mai uita la alte plenete
                             break
-
-                if crashes:
-                    # uitate in alt cruising time
-                    break
 
             if not crashes:
                 min_distance = distance
                 optimal_transfer_window_day = day
                 optimal_cruising_time = cruising_time
-                # e ok nu te mai uita la alte cruising time-uri ca sigur sunt mai mari ( ca le-am sortat ), treci la urmatoarea zi altogather
-                break
+
 
     if optimal_transfer_window_day == -1:
         return False

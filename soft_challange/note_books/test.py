@@ -36,4 +36,6 @@ ax.plot(0, 0, 'yo', markersize=12, label='Center')
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
 ax.legend()
-plt.show()
+# plt.show()
+#save this to a file .png
+plt.savefig('planets_orbits.png')

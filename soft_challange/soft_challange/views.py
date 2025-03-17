@@ -4,14 +4,6 @@ from utils import get_escape_velocities, get_escape_time_distance, get_stupid_tr
     get_angular_positions, get_medium_travel_data, get_smart_travel_data
 import os
 
-
-def file_present_valid(file_name) -> []:
-    """
-    :param file_name: The name of the file as defined in our front-end
-    :return: list: fierst element if good reposnbe or not
-    """
-
-
 def save_file(file, new_name):
     """
     :param file: The file to be saved
@@ -156,7 +148,7 @@ def smart_travel():
         return redirect(url_for('upload'))
 
     planets, rocket = proccess_solar_system_data()
-    travel_results = get_smart_travel_data(planets, from_planet, to_planet)
+    travel_results = get_smart_travel_data(planets, from_planet, to_planet ,rocket)
 
     if not travel_results:
         flash('No such travel possible')
