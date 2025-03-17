@@ -203,7 +203,8 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
                  planet_colors: list[str] | list[float], planet_names: list[str], planet1_name: str,
                  planet2_name: str,
                  saveto_filename: str,
-                 x_planet1_init=-1, y_planet1_init=-1, x_planet2_final=-1, y_planet2_final=-1):
+                 x_planet1_init=None, y_planet1_init=None, x_planet2_final=None, y_planet2_final=None):
+
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
 
@@ -241,7 +242,7 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
         ax.text(x_planet, y_planet, f' {name}', fontsize=10, verticalalignment='bottom')
 
     # se foloseste cand vrei sa faci animatie ca nu t-i se schimba traiectoria in timp ce zbori
-    if -1 not in [x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final]:
+    if None not in [x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final]:
         ax.plot([x_planet1_init, x_planet2_final], [y_planet1_init, y_planet2_final], 'r-', linewidth=2,
                 label=f"{planet1_name} → {planet2_name}")
 
@@ -250,6 +251,9 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
         x1, y1 = planet_positions[planet1_name]
         x2, y2 = planet_positions[planet2_name]
         ax.plot([x1, x2], [y1, y2], 'r-', linewidth=2, label=f"{planet1_name} → {planet2_name}")
+    else:
+        raise ValueError(f"Invalid planet names: {planet1_name}, {planet2_name} ORR either you have only partially set initial and final positions")
+
 
     # Mark the center (could be the star)
     ax.plot(0, 0, 'yo', markersize=12, label='Center')
@@ -258,7 +262,7 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
     ax.set_ylabel('Y')
     ax.legend()
     plt.savefig(saveto_filename)
-
+    plt.close()
 
 def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) -> dict | bool:
     """
@@ -397,6 +401,7 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
 
     planets_angles = [angle[0] for angle in travel_results['angular_positions'].values()]
     planets_names = [planet for planet in travel_results['angular_positions']]
+    #todo vezi astea batute in cui sa verifici mai intai daca sunt ok ca oricum daca faci alt isstem solar sau mai pui una iti da list index out of range
     planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
     max_planet_diameter = max([planet['diameter'] for planet in planets])
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
@@ -409,18 +414,19 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     planets_proportional_orbit_radii = [planet['orbital_radius'] / largest_orbit_radius for planet in planets]
     planets_proportional_orbit_radii = np.array(planets_proportional_orbit_radii)
 
+    # I mean we need to see it as wel smr
     plot_planets(planets_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_colors,
                  planets_names,
                  from_planet, to_planet, 'static/planets-accurate.png')
 
-    # I mean we need to see it as wel smr
 
     return travel_results
 
 
-def animate_planets(init_angles: list[float], planets_radii: list[float],
+
+def animate_planets(init_angles: list[float], final_angles: list[float],
+                    planets_radii: list[float],
                     orbit_radii: int | float | list[float] | ndarray,
-                    final_angles: list[float],
                     planet_colors: list[str] | list[float], planet_names: list[str], planet1_name: str,
                     planet2_name: str,
                     number_of_frames: int,
@@ -473,17 +479,195 @@ def animate_planets(init_angles: list[float], planets_radii: list[float],
                      f'frames/frame_{frame_no}.png', x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final)
 
     # face JIF
-    import imageio
+    import imageio.v3 as iio
 
     images = []
     for frame_no in range(number_of_frames):
-        images.append(imageio.imread(f'frames/frame_{frame_no}.png'))
-    imageio.mimsave(saveto_filename, images)
+        images.append(iio.imread(f'frames/frame_{frame_no}.png'))
+    iio.imwrite(saveto_filename, images, loop=0)
 
     # erau temp frameurile astea
     import os
     for frame_no in range(number_of_frames):
         os.remove(f'frames/frame_{frame_no}.png')
+
+
+def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, rocket: dict) -> dict | bool:
+    """
+    Stage 6: Gets the same results as stage 5 but with the planets now moving WHILE the rocket is also en route
+    :param planets: returned by proccess_solar_system_data
+    :param from_planet: user selected from form
+    :param to_planet: user selected from form
+    :param rocket: {"acceleration" : acc, "engine_count" : no_of_engines}
+    :return:
+    """
+
+    """
+    cand se uita daca se 
+    as face gen asemanator numai ca acum cand aflu lambda de intersectie potentiala vad cati km a parscurs din distanta
+
+    lambda = 0 - sfarsit de drum
+    labda = 1 - inceput de drum
+    """
+
+    from_planet_data = -1
+    to_planet_data = -1
+
+    for planet in planets:
+        if planet['name'] == from_planet:
+            from_planet_data = planet
+        elif planet['name'] == to_planet:
+            to_planet_data = planet
+        elif from_planet_data != -1 and to_planet_data != -1:
+            break
+
+    t0 = 100 * 365  # 100 years
+    # minimum TOTAL distance
+    min_distance = 9999999999999999999999999999999999999999999  # TODO stiu ca pot sa iau doar diametrul de la cel mai departe but idk
+    optimal_transfer_window_day = -1
+    optimal_cruising_time = -1
+
+    if from_planet_data['escape_velocity'] > to_planet_data['escape_velocity']:
+        cruising_velocity = from_planet_data['escape_velocity']
+        escape_distanace = from_planet_data['escape_distance']
+        escape_time = from_planet_data['escape_time']
+    else:
+        cruising_velocity = to_planet_data['escape_velocity']
+        escape_distanace = to_planet_data['escape_distance']
+        escape_time = to_planet_data['escape_time']
+
+    # radii in meters
+    r1 = from_planet_data['orbital_radius'] * AU
+    r2 = to_planet_data['orbital_radius'] * AU
+    destination_angular_velocity = 360 / to_planet_data['period']
+
+    # ok re zolvat pt total trabvel time is dupa ne dam seama cat vine fiecare stage de travel
+    from scipy.optimize import root_scalar
+
+    for day in range(365 * 10):
+
+        # nu-mi trebuie acum angluar positions, iau dupa ce vad la ce timp trebuie sa ma uit si fac
+        # get_angular_positions(planets,t0 + day + travel_time_to_intersect)
+
+        # faci functia de distanta in functie de cruise_time
+        to_planet_init_angle = get_angular_position(to_planet_data['period'], t0 + day)
+        from_planet_angle = get_angular_position(from_planet_data['period'], t0 + day)
+
+        # Define the function to find T
+        def equation(T, v, a, Rd, Rs, theta_d0, omega_d, theta_s):
+            lhs = v * T - v ** 2 / a
+            rhs = np.sqrt((Rd * np.cos(theta_d0 - omega_d * T) - Rs * np.cos(theta_s)) ** 2 +
+                          (Rd * np.sin(theta_d0 - omega_d * T) - Rs * np.sin(theta_s)) ** 2)
+            return lhs - rhs
+
+        total_time_sol = root_scalar(equation, args=(
+            cruising_velocity, rocket['acceleration'], r2, r1, to_planet_init_angle, destination_angular_velocity,
+            from_planet_angle), bracket=[0, 99999999999])
+
+        # Print the solution
+        if not total_time_sol.converged:
+            print("No solution found! oops se mai intampla")
+
+        total_time_sol = total_time_sol.root
+        cruising_time = total_time_sol - 2 * escape_time
+        distance = cruising_velocity * cruising_time + 2 * escape_distanace
+        to_planet_final_angle = get_angular_position(to_planet_data['period'], t0 + day + total_time_sol / 86400)
+
+        if distance < min_distance:
+            crashes = False
+
+            # does it crash into any planets on its way?
+            for planet in planets:
+                planet_name = planet['name']
+                orbit_radius = planet['orbital_radius'] * AU
+                if not (planet_name == from_planet or planet_name == to_planet):
+                    # coordinates of the source and destination planets in cartesian
+                    x1 = r1 * cos(from_planet_angle)
+                    y1 = r1 * sin(from_planet_angle)
+                    x2 = r2 * cos(to_planet_final_angle)
+                    y2 = r2 * sin(to_planet_final_angle)
+
+                    a = x1 ** 2 + y1 ** 2 - 2 * x1 * x2 - 2 * y1 * y2 + y2 ** 2 + x2 ** 2
+                    b = 2 * (x1 * x2 + y1 * y2 - x2 ** 2 - y2 ** 2)
+                    c = x2 ** 2 + y2 ** 2 - orbit_radius ** 2
+                    delta = b ** 2 - 4 * a * c
+
+                    # n-avem treaba
+                    if delta < 0:
+                        pass
+
+                    # se intersecteaza intr-un punct tangent
+                    elif delta == 0:
+                        # value of lambda when it intersects the planet's orbit
+                        lambda_intersect = -b / 2 * a
+                        if does_it_crash(lambda_intersect, distance, escape_distanace, cruising_velocity,
+                                         escape_time,
+                                         x1, x2, y1, y2, planet):
+                            crashes = True
+                            # lasa, uita-te in alta zi
+                            break
+
+                    # delta > 0, 2 intersectii
+                    else:
+                        # the two lambda points of intersection
+                        lamb1 = (-b + sqrt(delta)) / 2 * a
+                        lamb2 = (-b - sqrt(delta)) / 2 * a
+
+                        for lambda_intersect in [lamb1, lamb2]:
+                            if does_it_crash(lambda_intersect, distance, escape_distanace, cruising_velocity,
+                                             escape_time, x1, x2, y1, y2, planet):
+                                crashes = True
+                                break
+                        if crashes:
+                            # lasa, uita-te in alta zi nu te mai uita la alte plenete
+                            break
+
+            if not crashes:
+                min_distance = distance
+                optimal_transfer_window_day = day
+                optimal_cruising_time = cruising_time
+
+    if optimal_transfer_window_day == -1:
+        return False
+
+    # amu plecam la drum
+    travel_results = {}
+
+    travel_results['escape_time'] = escape_time
+    travel_results['escape_distance'] = escape_distanace
+    travel_results['optimal_transfer_window_day'] = optimal_transfer_window_day
+
+    travel_results['cruise_time'] = optimal_cruising_time
+
+    travel_results['total_travel_time'] = travel_results['cruise_time'] + 2 * escape_time
+
+    travel_results["start_angular_positions"] = get_angular_positions(planets, t0 + optimal_transfer_window_day)
+    travel_results["end_angular_positions"] = get_angular_positions(planets,
+                                                                    t0 + optimal_transfer_window_day + travel_results[
+                                                                        'total_travel_time'])
+
+    init_planet_angles = [angle[0] for angle in travel_results['start_angular_positions'].values()]
+    final_planet_angles = [angle[0] for angle in travel_results['end_angular_positions'].values()]
+
+    planets_names = [planet['name'] for planet in planets]
+    #todo vezi astea batute in cui sa verifici mai intai daca sunt ok ca oricum daca faci alt isstem solar sau mai pui una iti da list index out of range
+    planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
+    max_planet_diameter = max([planet['diameter'] for planet in planets])
+    planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
+
+    # TODO ai putea sa faci su cu orbitele alea reale da dupa nu se pream ai vede bine
+    animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_colors,
+                    planets_names, from_planet, to_planet, 100, 'static/planets_animation.gif')
+
+    # this time accurately with the plante radii
+    largest_orbit_radius = max([planet['orbital_radius'] for planet in planets])
+    planets_proportional_orbit_radii = [planet['orbital_radius'] / largest_orbit_radius for planet in planets]
+    planets_proportional_orbit_radii = np.array(planets_proportional_orbit_radii)
+
+    animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_colors,
+                    planets_names, from_planet, to_planet, 100, 'static/planets_animation_accurate.gif')
+
+    return travel_results
 
 
 def does_it_crash(lambda_intersect, distance, escape_distance, cruising_velocity, escape_time, x1, x2, y1, y2,

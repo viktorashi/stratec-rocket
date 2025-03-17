@@ -58,7 +58,11 @@
 
     {% if solar_system_data %}
         {#        ala destept rau #}
-        <h3>From which to which planets do you want to travel? (brazy difficulty Stage 6) </h3>
+        <h3>From which to which planets do you want to travel?
+            <br/>
+            WARNING : It will load for <b>a whilee</b>  because it'll be brewing a little suprise
+            <br/>
+            (brazy difficulty Stage 6) </h3>
         <form action="{{ url_for('smart_travel') }}" method="post" id="smartTravelForm"
               onsubmit="return smartTravelFormSubmitHandler()">
             <div class="form-group">
@@ -97,12 +101,12 @@
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-success mt-3" id="mediumTravelSubmitButton">Get stage 5 travel data</button>
+            <button type="submit" class="btn btn-warning mt-3" id="mediumTravelSubmitButton">Get stage 5 travel data</button>
         </form>
 
 
         {# astea mai usurele #}
-        <h3>From which to which planets do you want to travel? (stupidly) </h3>
+        <h3>From which to which planets do you want to travel? (warmup) </h3>
         <form action="{{ url_for('stupid_travel') }}" method="post" id="stupidTravelForm"
               onsubmit="return stupidTravelFormSubmitHandler()">
             <div class="form-group">
@@ -119,7 +123,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-success mt-3" id="stupidTravelSubmitButton">Get stage 3 travel data</button>
+            <button type="submit" class="btn btn-secondary mt-3" id="stupidTravelSubmitButton">Get stage 3 travel data</button>
         </form>
         <div id="travelError" class="alert alert-danger mt-3" style="display: none"></div>
 
@@ -131,7 +135,7 @@
                 <label for="day">Day:</label>
                 <input type="number" class="form-control" id="day" name="day" min="0">
             </div>
-            <button type="submit" class="btn btn-success mt-3" id="angularPositionsSubmitButton">Get positions</button>
+            <button type="submit" class="btn btn-dark mt-3" id="angularPositionsSubmitButton">Get positions</button>
         </form>
     {% endif %}
 
