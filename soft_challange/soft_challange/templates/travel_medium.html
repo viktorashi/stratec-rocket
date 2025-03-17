@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <title>Travel Data</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
 <div class="container">
     <h1 class="mt-5">Travel Data between <i>{{ fromPlanet }}</i> -> <i>{{ toPlanet }}</i> <sub>(with planets moving but
-        frezzing when the journey starts) </sub></h1>
+        freezing when the journey starts) </sub></h1>
+
+    <img src="../static/planets.png" alt="Planets" class="img-fluid mt-3">
+
     <ul class="list-group mt-3">
         <li class="list-group-item"><b>Escape Time</b>: {{ travel.escape_time }} seconds from take-off</li>
         <li class="list-group-item"><b>Escape Distance</b>: {{ travel.escape_distance }} meters from start planet</li>
@@ -49,6 +53,12 @@
     </table>
 
     <a href="{{ url_for('home') }}" class="btn btn-primary mt-3">Back to Home</a>
+
+    <h5>Ok here is the (I'm not so proud of) picture where the radii are also accurately proportional to eachother given
+    the problem details</h5>
+
+    <img src="../static/planets-accurate.png" alt="Planets" class="img-fluid mt-3">
+
 </div>
 
 <script src="../static/travel_stupid.js"></script>

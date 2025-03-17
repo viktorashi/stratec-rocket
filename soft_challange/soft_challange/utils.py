@@ -1,6 +1,9 @@
-from math import sqrt, cos, sin, floor
-
-from flask import Flask
+from math import sqrt, cos, sin
+import matplotlib
+import matplotlib.pyplot as plt
+#backendu gen sa poata sa mearga inafara de main thread
+matplotlib.use('agg')
+import numpy as np
 
 AU = 149597870.7 * (10 ** 3)  # 1 AU in meters
 
@@ -194,6 +197,64 @@ def get_stupid_travel_data(planets: [dict], from_planet: str,
 """
 
 
+def plot_planets(angles: [int], planet_names: [str], orbit_radii: float | list[float], planet1_name: str, planet2_name: str,
+                 saveto_filename: str):
+    """
+    :param angles:
+    :param planet_names:
+    :param orbit_radii:  either one constant step for all of them (the value of which will be added to every radii) or a list of radii for each planet
+    :param planet1_name: the planet from which to draw a line
+    :param planet2_name: the planet to whicih to draw that line
+    :param saveto_filename: the filepoth to which to save the plot
+    """
+
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.set_aspect('equal')
+
+    planet_positions = {}
+
+    for i, (angle, name) in enumerate(zip(angles, planet_names)):
+
+        if type(orbit_radii) == float or type(orbit_radii) == int:
+            radius = (i + 1) * orbit_radii
+        else:
+            radius = orbit_radii[i]
+
+        # Draw the orbit as a circle
+        theta = np.linspace(0, 2 * np.pi, 200)
+        x_orbit = radius * np.cos(theta)
+        y_orbit = radius * np.sin(theta)
+        ax.plot(x_orbit, y_orbit, color='gray', linestyle='--')
+
+        # Convert the angle from degrees to radians
+        angle_rad = np.deg2rad(angle)
+
+        # Compute the planet's position on the orbit
+        x_planet = radius * np.cos(angle_rad)
+        y_planet = radius * np.sin(angle_rad)
+
+        # Store the position
+        planet_positions[name] = (x_planet, y_planet)
+
+        # Plot the planet
+        ax.plot(x_planet, y_planet, 'o', markersize=8, label=name)
+        ax.text(x_planet, y_planet, f' {name}', fontsize=10, verticalalignment='bottom')
+
+    # Draw a line between the selected planets
+    if planet1_name in planet_positions and planet2_name in planet_positions:
+        x1, y1 = planet_positions[planet1_name]
+        x2, y2 = planet_positions[planet2_name]
+        ax.plot([x1, x2], [y1, y2], 'r-', linewidth=2, label=f"{planet1_name} ↔ {planet2_name}")
+
+    # Mark the center (could be the star)
+    ax.plot(0, 0, 'yo', markersize=12, label='Center')
+
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.legend()
+    plt.savefig(saveto_filename)
+
+
 def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) -> dict | bool:
     """
     Stage 5: Gets the same results as stage 3 but with
@@ -329,6 +390,16 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     travel_results['optimal_transfer_window'] = optimal_transfer_window_day
     travel_results['angular_positions'] = get_angular_positions(planets, t0 + optimal_transfer_window_day)
 
+    planet_angles = [angle[0] for angle in travel_results['angular_positions'].values()]
+    planet_names = [planet for planet in travel_results['angular_positions']]
+    #TODO ai putea sa faci su cu orbitele alea reale da dupa nu se pream ai vede bine
+    plot_planets(planet_angles, planet_names, 1, from_planet, to_planet, 'static/planets.png')
+    #this time accurately with the plante radii
+    planet_radii = [planet['diameter'] * (10 ** 3) / 2 for planet in planets]
+    plot_planets(planet_angles, planet_names, planet_radii, from_planet, to_planet, 'static/planets-accurate.png')
+
+    # I mean we need to see it as wel smr
+
     return travel_results
 
 
@@ -382,9 +453,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     destination_angular_velocity = 360 / to_planet_data['period']
 
     # ok re zolvat pt total trabvel time is dupa ne dam seama cat vine fiecare stage de travel
-    import numpy as np
     from scipy.optimize import root_scalar
-
 
     for day in range(365 * 10):
 
@@ -394,7 +463,6 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
         # faci functia de distanta in functie de cruise_time
         to_planet_init_angle = get_angular_position(to_planet_data['period'], t0 + day)
         from_planet_angle = get_angular_position(from_planet_data['period'], t0 + day)
-
 
         # Define the function to find T
         def equation(T, v, a, Rd, Rs, theta_d0, omega_d, theta_s):
@@ -414,14 +482,14 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
             print("No solution found!")
 
         total_time_sol = total_time_sol.root
-        cruising_time = total_time_sol- 2 * escape_time
+        cruising_time = total_time_sol - 2 * escape_time
         distance = cruising_velocity * cruising_time + 2 * escape_distanace
         to_planet_final_angle = get_angular_position(to_planet_data['period'], t0 + day + total_time_sol / 86400)
 
         if distance < min_distance:
             crashes = False
 
-            #does it crash into any planets on its way?
+            # does it crash into any planets on its way?
             for planet in planets:
                 planet_name = planet['name']
                 orbit_radius = planet['orbital_radius'] * AU
@@ -449,7 +517,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
                                          escape_time,
                                          x1, x2, y1, y2, planet):
                             crashes = True
-                            #lasa, uita-te in alta zi
+                            # lasa, uita-te in alta zi
                             break
 
                     # delta > 0, 2 intersectii
@@ -464,14 +532,13 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
                                 crashes = True
                                 break
                         if crashes:
-                            #lasa, uita-te in alta zi nu te mai uita la alte plenete
+                            # lasa, uita-te in alta zi nu te mai uita la alte plenete
                             break
 
             if not crashes:
                 min_distance = distance
                 optimal_transfer_window_day = day
                 optimal_cruising_time = cruising_time
-
 
     if optimal_transfer_window_day == -1:
         return False

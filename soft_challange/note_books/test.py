@@ -1,41 +1,48 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Example list of angles in degrees (you can replace these with your own data)
-angles = [0, 45, 90, 135, 180, 225, 270, 315]
+def plot_planets(angles:[int], planet_names:[str], orbit_step:int, planet1_name:str, planet2_name:str, saveto_filename:str):
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.set_aspect('equal')
 
-# Define the step between orbits (distance between each orbit)
-orbit_step = 1  # adjust as needed
+    planet_positions = {}
 
-fig, ax = plt.subplots(figsize=(6, 6))
-ax.set_aspect('equal')
+    for i, (angle, name) in enumerate(zip(angles, planet_names)):
+        # Each planet's orbit radius
+        radius = (i + 1) * orbit_step
 
-for i, angle in enumerate(angles):
-    # Each planet's orbit radius
-    radius = (i + 1) * orbit_step
+        # Draw the orbit as a circle
+        theta = np.linspace(0, 2 * np.pi, 200)
+        x_orbit = radius * np.cos(theta)
+        y_orbit = radius * np.sin(theta)
+        ax.plot(x_orbit, y_orbit, color='gray', linestyle='--')
 
-    # Draw the orbit as a circle
-    theta = np.linspace(0, 2 * np.pi, 200)
-    x_orbit = radius * np.cos(theta)
-    y_orbit = radius * np.sin(theta)
-    ax.plot(x_orbit, y_orbit, color='gray', linestyle='--')
+        # Convert the angle from degrees to radians
+        angle_rad = np.deg2rad(angle)
 
-    # Convert the angle from degrees to radians
-    angle_rad = np.deg2rad(angle)
+        # Compute the planet's position on the orbit
+        x_planet = radius * np.cos(angle_rad)
+        y_planet = radius * np.sin(angle_rad)
 
-    # Compute the planet's position on the orbit
-    x_planet = radius * np.cos(angle_rad)
-    y_planet = radius * np.sin(angle_rad)
+        # Store the position
+        planet_positions[name] = (x_planet, y_planet)
 
-    # Plot the planet's position
-    ax.plot(x_planet, y_planet, 'o', markersize=8, label=f'Planet {i + 1}')
+        # Plot the planet
+        ax.plot(x_planet, y_planet, 'o', markersize=8, label=name)
+        ax.text(x_planet, y_planet, f' {name}', fontsize=10, verticalalignment='bottom')
 
-# Mark the center (could be the star)
-ax.plot(0, 0, 'yo', markersize=12, label='Center')
+    # Draw a line between the selected planets
+    if planet1_name in planet_positions and planet2_name in planet_positions:
+        x1, y1 = planet_positions[planet1_name]
+        x2, y2 = planet_positions[planet2_name]
+        ax.plot([x1, x2], [y1, y2], 'r-', linewidth=2, label=f"{planet1_name} ↔ {planet2_name}")
 
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.legend()
-# plt.show()
-#save this to a file .png
-plt.savefig('planets_orbits.png')
+    # Mark the center (could be the star)
+    ax.plot(0, 0, 'yo', markersize=12, label='Center')
+
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.legend()
+    plt.savefig(saveto_filename)
+
+
