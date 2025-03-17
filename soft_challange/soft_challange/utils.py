@@ -226,6 +226,10 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     min_distance = 9999999999999999999999999999999999999999999  # TODO stiu ca pot sa iau doar diametrul de la cel mai departe but idk this just simpler
     optimal_transfer_window_day = -1
 
+    # in metrii
+    r1 = from_planet_data['orbital_radius'] * AU
+    r2 = to_planet_data['orbital_radius'] * AU
+
     # looks in the future for 10 years
     for day in range(365 * 10):
         angular_positions = get_angular_positions(planets, t0 + day)
@@ -235,9 +239,6 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
         to_planet_angle = angular_positions[to_planet][0]
 
         angle = abs(from_planet_angle - to_planet_angle)
-        # in metrii
-        r1 = from_planet_data['orbital_radius'] * AU
-        r2 = to_planet_data['orbital_radius'] * AU
         # straight line distance between the two planets
         distance = sqrt(r1 ** 2 + r2 ** 2 - 2 * r1 * r2 * cos(angle))
         if distance < min_distance:
@@ -362,6 +363,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str) -> 
     t0 = 100 * 365  # 100 years
     min_distance = 9999999999999999999999999999999999999999999  # TODO stiu ca pot sa iau doar diametrul de la cel mai departe but idk
     optimal_transfer_window_day = -1
+    optimal_cruising_time =-1
 
     if from_planet_data['escape_velocity'] > to_planet_data['escape_velocity']:
         cruising_velocity = from_planet_data['escape_velocity']
@@ -398,16 +400,12 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str) -> 
                 from_planet_angle)) ** 2)
 
         # cruising_times for which the distance is a minimum
-        result = minimize(dist_func, 0.5, bounds = [(0,None)])
-        cruising_time = result.x[0]
+        result = minimize(dist_func, 1)
+        cruising_time = result.jac[0]
         distance = result.fun
 
-        # look for the shortest distance first (sort)
-
-        # in days
-        cruising_time = cruising_time / 86400
         to_planet_final_angle = get_angular_position(to_planet_data['period'],
-                                                     t0 + day + cruising_time + 2 * escape_time)
+                                                     t0 + day + (cruising_time + 2 * escape_time) / 86400)
 
         if distance < min_distance:
             crashes = False
@@ -461,6 +459,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str) -> 
             if not crashes:
                 min_distance = distance
                 optimal_transfer_window_day = day
+                optimal_cruising_time = cruising_time
                 # e ok nu te mai uita la alte cruising time-uri ca sigur sunt mai mari ( ca le-am sortat ), treci la urmatoarea zi altogather
                 break
 
@@ -474,10 +473,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str) -> 
     travel_results['escape_distance'] = escape_distanace
     travel_results['optimal_transfer_window_day'] = optimal_transfer_window_day
 
-    travel_results['cruise_time'] = calculate_cruise_time(min_distance, escape_distanace,
-                                                          from_planet_data['diameter'] * (10 ** 3) / 2,
-                                                          to_planet_data['diameter'] * (10 ** 3) / 2,
-                                                          escape_distanace)
+    travel_results['cruise_time'] = optimal_cruising_time
 
     travel_results['total_travel_time'] = travel_results['cruise_time'] + 2 * escape_time
 
@@ -520,7 +516,7 @@ def does_it_crash(lambda_intersect, distance, escape_distance, cruising_velocity
         return True
 
 
-def get_angular_position(period, day:float) -> float:
+def get_angular_position(period, day: float) -> float:
     """
     :param period: Number of days it takes for a rotation around orbit
     :param day: day in which we are making the measurment
