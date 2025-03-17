@@ -199,8 +199,9 @@ def get_stupid_travel_data(planets: [dict], from_planet: str,
 """
 
 
-def plot_planets(angles:list[float], planets_radii:list[float], planet_colors: list[str] | list[float], orbit_radii: int | float | list[float] | ndarray, planet_names: list[str], planet1_name:str,
-                 planet2_name :str,
+def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: int | float | list[float] | ndarray,
+                 planet_colors: list[str] | list[float], planet_names: list[str], planet1_name: str,
+                 planet2_name: str,
                  saveto_filename: str):
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
@@ -395,15 +396,15 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
 
     # TODO ai putea sa faci su cu orbitele alea reale da dupa nu se pream ai vede bine
-    plot_planets(planets_angles, planets_radii_proportional, planets_colors, 1, planets_names,
+    plot_planets(planets_angles, planets_radii_proportional, 1, planets_colors, planets_names,
                  from_planet, to_planet, 'static/planets.png')
     # this time accurately with the plante radii
     largest_orbit_radius = max([planet['orbital_radius'] for planet in planets])
     planets_proportional_orbit_radii = [planet['orbital_radius'] / largest_orbit_radius for planet in planets]
     planets_proportional_orbit_radii = np.array(planets_proportional_orbit_radii)
 
-
-    plot_planets(planets_angles, planets_radii_proportional, planets_colors, planets_proportional_orbit_radii* 19, planets_names,
+    plot_planets(planets_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_colors,
+                 planets_names,
                  from_planet, to_planet, 'static/planets-accurate.png')
 
     # I mean we need to see it as wel smr
