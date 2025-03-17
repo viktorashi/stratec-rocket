@@ -1,7 +1,9 @@
 from math import sqrt, cos, sin
 import matplotlib
 import matplotlib.pyplot as plt
-#backendu gen sa poata sa mearga inafara de main thread
+from numpy import ndarray
+
+# backendu gen sa poata sa mearga inafara de main thread
 matplotlib.use('agg')
 import numpy as np
 
@@ -197,47 +199,43 @@ def get_stupid_travel_data(planets: [dict], from_planet: str,
 """
 
 
-def plot_planets(angles: [int], planet_names: [str], orbit_radii: float | list[float], planet1_name: str, planet2_name: str,
+def plot_planets(angles:list[float], planets_radii:list[float], planet_colors: list[str] | list[float], orbit_radii: int | float | list[float] | ndarray, planet_names: list[str], planet1_name:str,
+                 planet2_name :str,
                  saveto_filename: str):
-    """
-    :param angles:
-    :param planet_names:
-    :param orbit_radii:  either one constant step for all of them (the value of which will be added to every radii) or a list of radii for each planet
-    :param planet1_name: the planet from which to draw a line
-    :param planet2_name: the planet to whicih to draw that line
-    :param saveto_filename: the filepoth to which to save the plot
-    """
-
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
 
     planet_positions = {}
 
-    for i, (angle, name) in enumerate(zip(angles, planet_names)):
-
-        if type(orbit_radii) == float or type(orbit_radii) == int:
-            radius = (i + 1) * orbit_radii
+    for i, (angle, radius, color, name) in enumerate(zip(angles, planets_radii, planet_colors, planet_names)):
+        # Each planet's orbit radius
+        if type(orbit_radii) == int or type(orbit_radii) == float:
+            orbit_radius = (i + 1) * orbit_radii
+        elif type(orbit_radii) == list or type(orbit_radii) == ndarray:
+            orbit_radius = orbit_radii[i]
         else:
-            radius = orbit_radii[i]
+            raise ValueError(
+                "Invalid type for orbit_radii: {} ; but expected int, float or list[float]".format(type(orbit_radii)))
 
         # Draw the orbit as a circle
         theta = np.linspace(0, 2 * np.pi, 200)
-        x_orbit = radius * np.cos(theta)
-        y_orbit = radius * np.sin(theta)
+        x_orbit = orbit_radius * np.cos(theta)
+        y_orbit = orbit_radius * np.sin(theta)
         ax.plot(x_orbit, y_orbit, color='gray', linestyle='--')
 
         # Convert the angle from degrees to radians
         angle_rad = np.deg2rad(angle)
 
         # Compute the planet's position on the orbit
-        x_planet = radius * np.cos(angle_rad)
-        y_planet = radius * np.sin(angle_rad)
+        x_planet = orbit_radius * np.cos(angle_rad)
+        y_planet = orbit_radius * np.sin(angle_rad)
 
         # Store the position
         planet_positions[name] = (x_planet, y_planet)
 
-        # Plot the planet
-        ax.plot(x_planet, y_planet, 'o', markersize=8, label=name)
+        # Plot the planet with the specified radius
+        planet_circle = plt.Circle((x_planet, y_planet), radius, color=color, fill=True)
+        ax.add_patch(planet_circle)
         ax.text(x_planet, y_planet, f' {name}', fontsize=10, verticalalignment='bottom')
 
     # Draw a line between the selected planets
@@ -390,13 +388,23 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     travel_results['optimal_transfer_window'] = optimal_transfer_window_day
     travel_results['angular_positions'] = get_angular_positions(planets, t0 + optimal_transfer_window_day)
 
-    planet_angles = [angle[0] for angle in travel_results['angular_positions'].values()]
-    planet_names = [planet for planet in travel_results['angular_positions']]
-    #TODO ai putea sa faci su cu orbitele alea reale da dupa nu se pream ai vede bine
-    plot_planets(planet_angles, planet_names, 1, from_planet, to_planet, 'static/planets.png')
-    #this time accurately with the plante radii
-    planet_radii = [planet['diameter'] * (10 ** 3) / 2 for planet in planets]
-    plot_planets(planet_angles, planet_names, planet_radii, from_planet, to_planet, 'static/planets-accurate.png')
+    planets_angles = [angle[0] for angle in travel_results['angular_positions'].values()]
+    planets_names = [planet for planet in travel_results['angular_positions']]
+    planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
+    max_planet_diameter = max([planet['diameter'] for planet in planets])
+    planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
+
+    # TODO ai putea sa faci su cu orbitele alea reale da dupa nu se pream ai vede bine
+    plot_planets(planets_angles, planets_radii_proportional, planets_colors, 1, planets_names,
+                 from_planet, to_planet, 'static/planets.png')
+    # this time accurately with the plante radii
+    largest_orbit_radius = max([planet['orbital_radius'] for planet in planets])
+    planets_proportional_orbit_radii = [planet['orbital_radius'] / largest_orbit_radius for planet in planets]
+    planets_proportional_orbit_radii = np.array(planets_proportional_orbit_radii)
+
+
+    plot_planets(planets_angles, planets_radii_proportional, planets_colors, planets_proportional_orbit_radii* 19, planets_names,
+                 from_planet, to_planet, 'static/planets-accurate.png')
 
     # I mean we need to see it as wel smr
 
