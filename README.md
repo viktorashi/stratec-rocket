@@ -1,5 +1,10 @@
 
-### THIS WAS AMAZING
+### STRATEC ROCKET CHALLENGE
+
+<b>ok, this was amazing<b/> , so cosidering I didn't make it 'till Monday I wanted to go a little extra (astronomical) mile, feeling I had to
+
+![screenshot](pics/planet-plot.png)
+
 
 #### running it:
 ```bash
@@ -40,3 +45,4 @@ and now you can access the app through your localhost or 127.000 or whatever
 
 #### I'll start with the last one: the angular positions of the planets after 365 days passing from them being aligned
 ![screenshot](pics/angle-positions.png)
+obviously, earth is aligned
