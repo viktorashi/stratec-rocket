@@ -4,6 +4,7 @@ __pycache__/
 uploads/
 frames/
 *.gif
+#astea sunt generate la fiecare run
 positions_on_day.png
 planets.png
 planets-accurate.png
