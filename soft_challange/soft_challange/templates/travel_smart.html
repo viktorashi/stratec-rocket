@@ -15,6 +15,8 @@
 
     <img src="../static/planets_animation.gif" alt="Planets" class="img-fluid mt-3">
 
+    Ok, yeah in the animation it looks like it's trying to crash into the planet's center and going FROM it's center but
+    the calculation below are done considering the planets' surfaces, I swear)).
     <ul class="list-group mt-3">
         <li class="list-group-item"><b>Escape Time</b>: {{ travel.escape_time }} seconds from take-off</li>
         <li class="list-group-item"><b>Escape Distance</b>: {{ travel.escape_distance }} meters from start planet</li>
@@ -49,10 +51,10 @@
         </thead>
         <tbody>
         {% for planet_name in travel.start_angular_positions %}
-        <tr>
-            <td>{{ planet_name }}</td>
-            <td>{{ travel.start_angular_positions[planet_name][0] }}</td>
-        </tr>
+            <tr>
+                <td>{{ planet_name }}</td>
+                <td>{{ travel.start_angular_positions[planet_name][0] }}</td>
+            </tr>
         {% endfor %}
         </tbody>
     </table>
@@ -67,10 +69,10 @@
         </thead>
         <tbody>
         {% for planet_name in travel.end_angular_positions %}
-        <tr>
-            <td>{{ planet_name }}</td>
-            <td>{{ travel.end_angular_positions[planet_name][0] }}</td>
-        </tr>
+            <tr>
+                <td>{{ planet_name }}</td>
+                <td>{{ travel.end_angular_positions[planet_name][0] }}</td>
+            </tr>
         {% endfor %}
         </tbody>
     </table>
