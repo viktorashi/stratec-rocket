@@ -3,7 +3,7 @@
 
 <b>ok, this was amazing</b> , so cosidering I didn't make it 'till Monday I wanted to go a little extra (astronomical) mile, feeling I had to
 
-
+§
 https://github.com/user-attachments/assets/030b042d-d07e-422c-8a37-3a980be9e88e
 
 
@@ -59,7 +59,7 @@ Now, sparing you the details of stage 3, these are 5 and 6:
 Depending on whichever is fitting, those planetts will either:
 
 - be stationary showing the day in which we do our travel (for stage 5)
-- or a `gif` will be generated showing how planets are moving <b>during</b> our travel (for stage 6)
+- or a `gif` will be generated showing how planets and the rocket are moving <b>during</b> our travel (for stage 6)
 
 respectively
 
