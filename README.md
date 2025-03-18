@@ -2,9 +2,10 @@
 ### 🚀STRATEC ROCKET CHALLENGE🚀
 
 <b>ok, this was amazing</b> , so cosidering I didn't make it 'till Monday I wanted to go a little extra (astronomical) mile, feeling I had to
-⬇⬇️⬇️⬇️Click the YouTube video⬇️⬇️⬇️⬇
 
-[![Trajectory animation video](https://img.youtube.com/vi/dKbWgRBDZV4/0.jpg)](https://www.youtube.com/watch?v=dKbWgRBDZV4)
+https://github.com/user-attachments/assets/85bf1034-e1c0-4690-ae63-10a057cbbadb
+
+
 
 #### running it:
 ```bash
