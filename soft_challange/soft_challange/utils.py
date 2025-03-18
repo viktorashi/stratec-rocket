@@ -1,15 +1,15 @@
 from math import sqrt, cos, sin
 import matplotlib
 import matplotlib.pyplot as plt
-from numpy import ndarray
+import numpy as np
+from numpy import ndarray, deg2rad
 import time
 
 
 # backendu gen sa poata sa mearga inafara de main thread
 matplotlib.use('agg')
-import numpy as np
 
-AU = 149597870.7 * (10 ** 3)  # 1 AU in meters
+AU = 149597870.7 * (10 ** 3)  # 1 AU in metri
 
 
 def get_escape_velocities(data: str) -> [dict]:
@@ -206,6 +206,7 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
                  saveto_filename: str, planet1_name: str = None,
                  planet2_name: str = None,
                  x_planet1_init=None, y_planet1_init=None, x_planet2_final=None, y_planet2_final=None):
+
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
 
@@ -221,33 +222,31 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
             raise ValueError(
                 "Invalid type for orbit_radii: {} ; but expected int, float or list[float]".format(type(orbit_radii)))
 
-        # Draw the orbit as a circle
+        # the circle orbit
         theta = np.linspace(0, 2 * np.pi, 200)
         x_orbit = orbit_radius * np.cos(theta)
         y_orbit = orbit_radius * np.sin(theta)
         ax.plot(x_orbit, y_orbit, color='gray', linestyle='--')
 
-        # Convert the angle from degrees to radians
-        angle_rad = np.deg2rad(angle)
+        angle_rad = deg2rad(angle)
 
-        # Compute the planet's position on the orbit
+        # pozitia ei aacum in orbita
         x_planet = orbit_radius * np.cos(angle_rad)
         y_planet = orbit_radius * np.sin(angle_rad)
 
-        # Store the position
         planet_positions[name] = (x_planet, y_planet)
 
-        # Plot the planet with the specified radius
+        # acm sa apara efectiv
         planet_circle = plt.Circle((x_planet, y_planet), radius, color=color, fill=True)
         ax.add_patch(planet_circle)
         ax.text(x_planet, y_planet, f' {name}', fontsize=10, verticalalignment='bottom')
 
-    # se foloseste cand vrei sa faci animatie ca nu t-i se schimba traiectoria in timp ce zbori
+    # pt animatie cand linia ramane la fel in timp ce se misca planetele
     if None not in [x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final, planet1_name, planet2_name]:
         ax.plot([x_planet1_init, x_planet2_final], [y_planet1_init, y_planet2_final], 'r-', linewidth=2,
                 label=f"{planet1_name} → {planet2_name}")
 
-    # nu-ti face linia decat daca nu faci sa te uiti doar la pozitii in ziua respectiva
+    # simplu doar pentru poza
     elif planet1_name != None and planet2_name != None:
         x1, y1 = planet_positions[planet1_name]
         x2, y2 = planet_positions[planet2_name]
@@ -334,7 +333,7 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
                     if delta < 0:
                         pass
 
-                    # se intersecteaza, dar tangent asa la un singur punct
+                    # se intersecteaza, dar tangent așa la un singur punct
                     elif delta == 0:
                         # nu pot sa scriu lambda ca e gen sintaxa in python lol
                         lamb = -b / 2 * a
@@ -446,7 +445,7 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
     :param saveto_filename:
     :return:
     """
-    #TODO nu prea arata accurate linia aia
+    #TODO nu prea arata accurate linia aia, gen deloc
 
     print('starting animationn ... be careful, this might take a while')
     x_planet1_init = -1
@@ -458,32 +457,32 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
         if planet_name == planet1_name:
             if type(orbit_radii) == int or type(orbit_radii) == float:
                 orbit_radius = (i + 1) * orbit_radii
-                x_planet1_init = orbit_radius * cos(init_angles[i])
-                y_planet1_init = orbit_radius * sin(init_angles[i])
+                x_planet1_init = orbit_radius * cos(deg2rad (init_angles[i]))
+                y_planet1_init = orbit_radius * sin(deg2rad (init_angles[i]))
             else:
-                x_planet1_init = orbit_radii[i] * cos(init_angles[i])
-                y_planet1_init = orbit_radii[i] * sin(init_angles[i])
+                x_planet1_init = orbit_radii[i] * cos(deg2rad (init_angles[i]))
+                y_planet1_init = orbit_radii[i] * sin(deg2rad (init_angles[i]))
         elif planet_name == planet2_name:
             if type(orbit_radii) == int or type(orbit_radii) == float:
                 orbit_radius = (i + 1) * orbit_radii
-                x_planet2_final = orbit_radius * cos(final_angles[i])
-                y_planet2_final = orbit_radius * sin(final_angles[i])
+                x_planet2_final = orbit_radius * cos(deg2rad (final_angles[i]))
+                y_planet2_final = orbit_radius * sin(deg2rad (final_angles[i]))
             else:
-                x_planet2_final = orbit_radii[i] * cos(final_angles[i])
-                y_planet2_final = orbit_radii[i] * sin(final_angles[i])
+                x_planet2_final = orbit_radii[i] * cos(deg2rad (final_angles[i]))
+                y_planet2_final = orbit_radii[i] * sin(deg2rad (final_angles[i]))
 
         elif x_planet1_init != -1 and x_planet2_final != -1:
             break
 
     # TODO nu se prea vede bine linia aia dintre planete
-    # cand trece de 0 in timp cem erge o sa fie negative diferenta aia
-    angle_distances = [final_angle - init_angle if init_angle < final_angle else 360 - init_angle + final_angle for
+    # cand trece de 0 in timp ce mrge o sa fie negative diferenta aia
+    angular_distances = [final_angle - init_angle if init_angle < final_angle else 360 - init_angle + final_angle for
                        init_angle, final_angle in zip(init_angles, final_angles)]
 
     for frame_no in range(number_of_frames):
         path_proportion = frame_no / number_of_frames
         angles = [init_angle + total_circular_distance * path_proportion for init_angle, total_circular_distance in
-                  zip(init_angles, angle_distances)]
+                  zip(init_angles, angular_distances)]
 
         plot_planets(angles, planets_radii, orbit_radii, planet_colors, planet_names,
                      f'frames/frame_{frame_no}.png', planet1_name, planet2_name, x_planet1_init, y_planet1_init,
