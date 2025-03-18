@@ -3,7 +3,7 @@
 
 <b>ok, this was amazing<b/> , so cosidering I didn't make it 'till Monday I wanted to go a little extra (astronomical) mile, feeling I had to
 
-<iframe width="1398" height="521" src="https://www.youtube.com/embed/dKbWgRBDZV4" title="🚀Planet Animations gif🚀 🧑‍🚀🧑‍🚀 😎😎🤓" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![Trajectory animation video](https://img.youtube.com/vi/dKbWgRBDZV4/0.jpg)](https://www.youtube.com/watch?v=dKbWgRBDZV4)
 
 #### running it:
 ```bash
