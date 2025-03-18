@@ -68,6 +68,8 @@ def upload():
             return redirect(url_for('home'))
 
         save_file('solar_system_data_file', 'solar_system_data_file.txt')
+        save_file('rocket_data_file', 'rocket_data_file.txt')
+        save_file('planetary_data_file', 'planetary_data_file.txt')
 
         planets, rocket = proccess_solar_system_data()
 
