@@ -205,7 +205,7 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
                  planet_colors: list[str] | list[float], planet_names: list[str],
                  saveto_filename: str, planet1_name: str = None,
                  planet2_name: str = None,
-                 x_planet1_init=None, y_planet1_init=None, x_planet2_final=None, y_planet2_final=None):
+                 x_planet1_init=None, y_planet1_init=None, x_planet2_final=None, y_planet2_final=None, rocket_curr_x=None, rocket_curr_y=None):
 
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
@@ -243,8 +243,11 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
 
     # pt animatie cand linia ramane la fel in timp ce se misca planetele
     if None not in [x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final, planet1_name, planet2_name]:
+        #plot la linia aia
         ax.plot([x_planet1_init, x_planet2_final], [y_planet1_init, y_planet2_final], 'r-', linewidth=2,
                 label=f"{planet1_name} → {planet2_name}")
+        #plot la racheta
+        ax.plot(rocket_curr_x, rocket_curr_y, 'bo', markersize=5, label='Racketaaa')
 
     # simplu doar pentru poza
     elif planet1_name != None and planet2_name != None:
@@ -479,14 +482,21 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
     angular_distances = [final_angle - init_angle if init_angle < final_angle else 360 - init_angle + final_angle for
                        init_angle, final_angle in zip(init_angles, final_angles)]
 
+    rocket_curr_x = x_planet1_init
+    rocket_curr_y = y_planet1_init
+
     for frame_no in range(number_of_frames):
         path_proportion = frame_no / number_of_frames
         angles = [init_angle + total_circular_distance * path_proportion for init_angle, total_circular_distance in
                   zip(init_angles, angular_distances)]
 
+        rocket_curr_x = x_planet1_init + path_proportion * (x_planet2_final - x_planet1_init)
+        rocket_curr_y = y_planet1_init + path_proportion * (y_planet2_final - y_planet1_init)
+
+
         plot_planets(angles, planets_radii, orbit_radii, planet_colors, planet_names,
                      f'frames/frame_{frame_no}.png', planet1_name, planet2_name, x_planet1_init, y_planet1_init,
-                     x_planet2_final, y_planet2_final)
+                     x_planet2_final, y_planet2_final, rocket_curr_x, rocket_curr_y)
 
     # face JIF
     import imageio.v3 as iio
