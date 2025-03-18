@@ -204,7 +204,6 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
                  planet2_name: str,
                  saveto_filename: str,
                  x_planet1_init=None, y_planet1_init=None, x_planet2_final=None, y_planet2_final=None):
-
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
 
@@ -252,8 +251,8 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
         x2, y2 = planet_positions[planet2_name]
         ax.plot([x1, x2], [y1, y2], 'r-', linewidth=2, label=f"{planet1_name} → {planet2_name}")
     else:
-        raise ValueError(f"Invalid planet names: {planet1_name}, {planet2_name} ORR either you have only partially set initial and final positions")
-
+        raise ValueError(
+            f"Invalid planet names: {planet1_name}, {planet2_name} ORR either you have only partially set initial and final positions")
 
     # Mark the center (could be the star)
     ax.plot(0, 0, 'yo', markersize=12, label='Center')
@@ -263,6 +262,7 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
     ax.legend()
     plt.savefig(saveto_filename)
     plt.close()
+
 
 def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) -> dict | bool:
     """
@@ -401,7 +401,7 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
 
     planets_angles = [angle[0] for angle in travel_results['angular_positions'].values()]
     planets_names = [planet for planet in travel_results['angular_positions']]
-    #todo vezi astea batute in cui sa verifici mai intai daca sunt ok ca oricum daca faci alt isstem solar sau mai pui una iti da list index out of range
+    # todo vezi astea batute in cui sa verifici mai intai daca sunt ok ca oricum daca faci alt isstem solar sau mai pui una iti da list index out of range
     planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
     max_planet_diameter = max([planet['diameter'] for planet in planets])
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
@@ -419,9 +419,7 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
                  planets_names,
                  from_planet, to_planet, 'static/planets-accurate.png')
 
-
     return travel_results
-
 
 
 def animate_planets(init_angles: list[float], final_angles: list[float],
@@ -470,10 +468,14 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
         elif x_planet1_init != -1 and x_planet2_final != -1:
             break
 
+    # TODO nu se prea vede bine linia aia dintre planete
+    # cand trece de 0 in timp cem erge o sa fie negative diferenta aia
+    angle_distances = [final_angle - init_angle if init_angle < final_angle else 360 - init_angle + final_angle for init_angle, final_angle in zip(init_angles, final_angles)]
+
     for frame_no in range(number_of_frames):
         path_proportion = frame_no / number_of_frames
-        angles = [init_angle + (final_angle - init_angle) * path_proportion for init_angle, final_angle in
-                  zip(init_angles, final_angles)]
+        angles = [init_angle + total_circular_distance * path_proportion for init_angle, total_circular_distance in
+                  zip(init_angles, angle_distances)]
 
         plot_planets(angles, planets_radii, orbit_radii, planet_colors, planet_names, planet1_name, planet2_name,
                      f'frames/frame_{frame_no}.png', x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final)
@@ -567,6 +569,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
         # Print the solution
         if not total_time_sol.converged:
             print("No solution found! oops se mai intampla")
+            return False
 
         total_time_sol = total_time_sol.root
         cruising_time = total_time_sol - 2 * escape_time
@@ -650,7 +653,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     final_planet_angles = [angle[0] for angle in travel_results['end_angular_positions'].values()]
 
     planets_names = [planet['name'] for planet in planets]
-    #todo vezi astea batute in cui sa verifici mai intai daca sunt ok ca oricum daca faci alt isstem solar sau mai pui una iti da list index out of range
+    # todo vezi astea batute in cui sa verifici mai intai daca sunt ok ca oricum daca faci alt isstem solar sau mai pui una iti da list index out of range
     planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
     max_planet_diameter = max([planet['diameter'] for planet in planets])
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
@@ -664,7 +667,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     planets_proportional_orbit_radii = [planet['orbital_radius'] / largest_orbit_radius for planet in planets]
     planets_proportional_orbit_radii = np.array(planets_proportional_orbit_radii)
 
-#prolly don't need this cuz it takes too long
+    # prolly don't need this cuz it takes too long
     # animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_colors,
     #                 planets_names, from_planet, to_planet, 100, 'static/planets_animation_accurate.gif')
 
