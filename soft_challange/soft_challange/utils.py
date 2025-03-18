@@ -250,7 +250,7 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
         x1, y1 = planet_positions[planet1_name]
         x2, y2 = planet_positions[planet2_name]
         ax.plot([x1, x2], [y1, y2], 'r-', linewidth=2, label=f"{planet1_name} → {planet2_name}")
-    #nu vrei nicio linie plotuita
+    # nu vrei nicio linie plotuita
     else:
         pass
 
@@ -302,6 +302,7 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
 
     # looks in the future for 10 years
     for day in range(365 * 10):
+        print(day)
         angular_positions = get_angular_positions(planets, t0 + day)
 
         # angle between the two planets
@@ -407,8 +408,9 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
 
     # TODO ai putea sa faci su cu orbitele alea reale da dupa nu se pream ai vede bine
-    plot_planets(planets_angles, planets_radii_proportional, 1, planets_colors, to_planet, 'static/planets.png', planets_names,
-                 from_planet)
+    plot_planets(planets_angles, planets_radii_proportional, 1, planets_colors, planets_names, 'static/planets.png',
+                 from_planet,
+                 to_planet)
 
     # this time accurately with the plante radii
     largest_orbit_radius = max([planet['orbital_radius'] for planet in planets])
@@ -480,7 +482,8 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
                   zip(init_angles, angle_distances)]
 
         plot_planets(angles, planets_radii, orbit_radii, planet_colors, planet_names,
-                     f'frames/frame_{frame_no}.png', planet1_name, planet2_name, x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final)
+                     f'frames/frame_{frame_no}.png', planet1_name, planet2_name, x_planet1_init, y_planet1_init,
+                     x_planet2_final, y_planet2_final)
 
     # face JIF
     import imageio.v3 as iio
