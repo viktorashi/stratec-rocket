@@ -8,8 +8,9 @@ https://github.com/user-attachments/assets/030b042d-d07e-422c-8a37-3a980be9e88e
 
 #### running it:
 ```bash
+git clone https://github.com/viktorashi/stratec-rocket.git
 #yes, twice
-cd soft_challange/soft_challange
+cd stratec-rocket/soft_challange/soft_challange
 ```
 
 so `pwd` returns somehting like `/path/to/soft_challange/soft_challange`
