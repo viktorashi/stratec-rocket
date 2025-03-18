@@ -15,6 +15,7 @@ cd soft_challange/soft_challange
 so `pwd` returns somehting like `/path/to/soft_challange/soft_challange`
 then
 
+Now's the time to activate/create a [virtual env](https://virtualenvwrapper.readthedocs.io/en/latest/) or just do it global if you feel like it
 ```bash
 pip install -r requirements.txt
 flask --app . run
