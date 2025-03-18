@@ -7,4 +7,3 @@ Saturn: diameter = 120000 km, mass = 95 Earths
 Uranus: diameter = 52400 km, mass = 15 Earths
 Neptune: diameter = 48400 km, mass = 17 Earths
 Pluto: diameter = 2450 km, mass = 0.002 Earths
-viktorashion: diameter = 143800 km, mass = 0.2 Earths
