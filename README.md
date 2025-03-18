@@ -1,7 +1,8 @@
 
-### STRATEC ROCKET CHALLENGE
+### 🚀STRATEC ROCKET CHALLENGE🚀
 
-<b>ok, this was amazing<b/> , so cosidering I didn't make it 'till Monday I wanted to go a little extra (astronomical) mile, feeling I had to
+<b>ok, this was amazing</b> , so cosidering I didn't make it 'till Monday I wanted to go a little extra (astronomical) mile, feeling I had to
+⬇⬇️⬇️⬇️Click the YouTube video⬇️⬇️⬇️⬇
 
 [![Trajectory animation video](https://img.youtube.com/vi/dKbWgRBDZV4/0.jpg)](https://www.youtube.com/watch?v=dKbWgRBDZV4)
 
