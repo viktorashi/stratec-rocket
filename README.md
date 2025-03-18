@@ -4,10 +4,7 @@
 <b>ok, this was amazing</b> , so cosidering I didn't make it 'till Monday I wanted to go a little extra (astronomical) mile, feeling I had to
 
 
-https://github.com/user-attachments/assets/4a0af9a0-14ea-4a9f-a851-7b92429f0265
-
-
-
+https://github.com/user-attachments/assets/030b042d-d07e-422c-8a37-3a980be9e88e
 
 
 #### running it:
