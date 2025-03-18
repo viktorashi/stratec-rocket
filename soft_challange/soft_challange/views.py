@@ -1,7 +1,7 @@
 from flask import request, redirect, url_for, render_template, flash
 from soft_challange import app
 from utils import get_escape_velocities, get_escape_time_distance, get_stupid_travel_data, parse_solar_system_data, \
-    get_angular_positions, get_medium_travel_data, get_smart_travel_data
+    get_angular_positions, get_medium_travel_data, get_smart_travel_data, plot_planets
 import os
 
 def save_file(file, new_name):
@@ -173,5 +173,16 @@ def angular_positions():
 
     planets = proccess_solar_system_data()[0]
     angular_positions_list = get_angular_positions(planets, day)
+
+    # you know what? plot these as well
+    angles = [angular_positions_list[planet][0] for planet in angular_positions_list]
+    max_planet_diameter = max([planet['diameter'] for planet in planets])
+    planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
+    planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
+    planets_names = [planet for planet in angular_positions_list]
+
+    plot_planets(angles, planets_radii_proportional, 1, planets_colors, planets_names,
+                 'static/positions_on_day.png')
+
 
     return render_template("positions.html", angular_positions=angular_positions_list, day=day)

@@ -2,6 +2,8 @@ from math import sqrt, cos, sin
 import matplotlib
 import matplotlib.pyplot as plt
 from numpy import ndarray
+import time
+
 
 # backendu gen sa poata sa mearga inafara de main thread
 matplotlib.use('agg')
@@ -254,8 +256,7 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
     else:
         pass
 
-    # Mark the center (could be the star)
-    ax.plot(0, 0, 'yo', markersize=12, label='Center')
+    ax.plot(0, 0, 'yo', markersize=12, label='DA SUN')
 
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
@@ -420,7 +421,7 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     # I mean we need to see it as wel smr
     plot_planets(planets_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_colors,
                  planets_names,
-                 from_planet, to_planet, 'static/planets-accurate.png')
+                'static/planets-accurate.png', from_planet, to_planet)
 
     return travel_results
 
@@ -445,6 +446,9 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
     :param saveto_filename:
     :return:
     """
+    #TODO nu prea arata accurate linia aia
+
+    print('starting animationn ... be careful, this might take a while')
     x_planet1_init = -1
     y_planet1_init = -1
     x_planet2_final = -1
@@ -663,9 +667,11 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     max_planet_diameter = max([planet['diameter'] for planet in planets])
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
 
-    # TODO ai putea sa faci su cu orbitele alea reale da dupa nu se pream ai vede bine
+    start_time = time.time()
     animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_colors,
                     planets_names, from_planet, to_planet, 100, 'static/planets_animation.gif')
+
+    print("--- It toook %s seconds ---" % (time.time() - start_time))
 
     # this time accurately with the plante radii
     largest_orbit_radius = max([planet['orbital_radius'] for planet in planets])
@@ -734,16 +740,6 @@ def get_angular_positions(planets, day: int) -> [dict[int, float, int]]:
         orbit_radius = planet['orbital_radius'] * AU
         planet_radius = planet['diameter'] / 2
         angular_positions[planet['name']] = [angular_position, orbit_radius, planet_radius]
-
-    # you know what? plot these as well
-    angles = [angular_positions[planet][0] for planet in angular_positions]
-    max_planet_diameter = max([planet['diameter'] for planet in planets])
-    planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
-    planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
-    planets_names = [planet for planet in angular_positions]
-
-    plot_planets(angles, planets_radii_proportional, 1, planets_colors, planets_names,
-                 'static/positions_on_day.png')
 
     return angular_positions
 
