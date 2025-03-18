@@ -209,17 +209,16 @@ def get_stupid_travel_data(planets: [dict], from_planet: str,
 
 
 def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: int | float | list[float] | ndarray,
-                 planet_colors: list[str] | list[float], planet_names: list[str],
-                 saveto_filename: str, planet1_name: str = None,
-                 planet2_name: str = None,
-                 x_planet1_init=None, y_planet1_init=None, x_planet2_final=None, y_planet2_final=None,
-                 rocket_curr_x=None, rocket_curr_y=None, rotated_rocket=None):
+                 planet_names: list[str], saveto_filename: str, planet_colors: list[str] | list[float] = None,
+                 planet1_name: str = None, planet2_name: str = None, x_planet1_init=None, y_planet1_init=None,
+                 x_planet2_final=None, y_planet2_final=None, rocket_curr_x=None, rocket_curr_y=None,
+                 rotated_rocket=None):
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
 
     planet_positions = {}
 
-    for i, (angle, radius, color, name) in enumerate(zip(angles, planets_radii, planet_colors, planet_names)):
+    for i, (angle, radius, name) in enumerate(zip(angles, planets_radii, planet_names)):
         # Each planet's orbit radius
         if type(orbit_radii) == int or type(orbit_radii) == float:
             orbit_radius = (i + 1) * orbit_radii
@@ -244,7 +243,12 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
         planet_positions[name] = (x_planet, y_planet)
 
         # acm sa apara efectiv
-        planet_circle = plt.Circle((x_planet, y_planet), radius, color=color, fill=True)
+        if planet_colors is not None:
+            planet_circle = plt.Circle((x_planet, y_planet), radius, color=planet_colors[i], fill=True)
+        else:
+            #sunt toate albsatre cu viata pe ele gen doamne ajuta
+            planet_circle = plt.Circle((x_planet, y_planet), radius, color='blue', fill=True)
+
         ax.add_patch(planet_circle)
         ax.text(x_planet, y_planet, f' {name}', fontsize=10, verticalalignment='bottom')
 
@@ -277,6 +281,13 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
     plt.savefig(saveto_filename)
     plt.close()
 
+
+def get_colors_if_possible(number_of_planets:int)-> None | list[str]:
+    if number_of_planets == 9:
+        return  ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896',
+                          '#fff1d5']
+    else:
+        return None
 
 def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) -> dict | bool:
     """
@@ -416,15 +427,14 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
 
     planets_angles = [angle[0] for angle in travel_results['angular_positions'].values()]
     planets_names = [planet for planet in travel_results['angular_positions']]
-    # todo vezi astea batute in cui sa verifici mai intai daca sunt ok ca oricum daca faci alt isstem solar sau mai pui una iti da list index out of range
-    planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
+
+    planets_colors = get_colors_if_possible(len(planets_names))
+
     max_planet_diameter = max([planet['diameter'] for planet in planets])
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
 
-    # TODO ai putea sa faci su cu orbitele alea reale da dupa nu se pream ai vede bine
-    plot_planets(planets_angles, planets_radii_proportional, 1, planets_colors, planets_names, 'static/planets.png',
-                 from_planet,
-                 to_planet)
+    plot_planets(planets_angles, planets_radii_proportional, 1, planets_names, 'static/planets.png', planets_colors,
+                 from_planet, to_planet)
 
     # this time accurately with the plante radii
     largest_orbit_radius = max([planet['orbital_radius'] for planet in planets])
@@ -432,20 +442,16 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     planets_proportional_orbit_radii = np.array(planets_proportional_orbit_radii)
 
     # I mean we need to see it as wel smr
-    plot_planets(planets_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_colors,
-                 planets_names,
-                 'static/planets-accurate.png', from_planet, to_planet)
+    plot_planets(planets_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_names,
+                 'static/planets-accurate.png', planets_colors, from_planet, to_planet)
 
     return travel_results
 
 
-def animate_planets(init_angles: list[float], final_angles: list[float],
-                    planets_radii: list[float],
-                    orbit_radii: int | float | list[float] | ndarray,
-                    planet_colors: list[str] | list[float], planet_names: list[str], planet1_name: str,
-                    planet2_name: str,
-                    number_of_frames: int,
-                    saveto_filename: str):
+def animate_planets(init_angles: list[float], final_angles: list[float], planets_radii: list[float],
+                    orbit_radii: int | float | list[float] | ndarray, planet_names: list[str], planet1_name: str,
+                    planet2_name: str, number_of_frames: int, saveto_filename: str,
+                    planet_colors: list[str] | list[float] = None):
     """
     :param init_angles:
     :param planets_radii:
@@ -467,7 +473,6 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
     y_planet1_init = -1
     x_planet2_final = -1
     y_planet2_final = -1
-
 
     for i, planet_name in enumerate(planet_names):
         if planet_name == planet1_name:
@@ -498,10 +503,12 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
     else:
         theta_rocket = theta_line + 90
 
+    if y_planet2_final < y_planet1_init:
+        theta_rocket += 180
+
     rocket_img = mpimg.imread(os.path.join(app.config['UPLOAD_FOLDER'], 'lil_rocket.png'))
 
     rotated_rocket = rotate(rocket_img, theta_rocket, reshape=True)
-
 
     # TODO nu se prea vede bine linia aia dintre planete
     # cand trece de 0 in timp ce mrge o sa fie negative diferenta aia
@@ -516,10 +523,9 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
         rocket_curr_x = x_planet1_init + path_proportion * (x_planet2_final - x_planet1_init)
         rocket_curr_y = y_planet1_init + path_proportion * (y_planet2_final - y_planet1_init)
 
-
-        plot_planets(angles, planets_radii, orbit_radii, planet_colors, planet_names,
-                     f'frames/frame_{frame_no}.png', planet1_name, planet2_name, x_planet1_init, y_planet1_init,
-                     x_planet2_final, y_planet2_final, rocket_curr_x, rocket_curr_y, rotated_rocket)
+        plot_planets(angles, planets_radii, orbit_radii, planet_names, f'frames/frame_{frame_no}.png', planet_colors,
+                     planet1_name, planet2_name, x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final,
+                     rocket_curr_x, rocket_curr_y, rotated_rocket)
 
     # face JIF
     import imageio.v3 as iio
@@ -694,14 +700,14 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     final_planet_angles = [angle[0] for angle in travel_results['end_angular_positions'].values()]
 
     planets_names = [planet['name'] for planet in planets]
-    # todo vezi astea batute in cui sa verifici mai intai daca sunt ok ca oricum daca faci alt isstem solar sau mai pui una iti da list index out of range
-    planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
+    planets_colors = get_colors_if_possible(len(planets))
+
     max_planet_diameter = max([planet['diameter'] for planet in planets])
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
 
     start_time = time.time()
-    animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_colors,
-                    planets_names, from_planet, to_planet, 90, 'static/planets_animation.gif')
+    animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_names, from_planet,
+                    to_planet, 90, 'static/planets_animation.gif', planets_colors)
 
     print("--- It toook %s seconds ---" % (time.time() - start_time))
 

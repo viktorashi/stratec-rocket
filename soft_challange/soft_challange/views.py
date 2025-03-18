@@ -181,8 +181,7 @@ def angular_positions():
     planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
     planets_names = [planet for planet in angular_positions_list]
 
-    plot_planets(angles, planets_radii_proportional, 1, planets_colors, planets_names,
-                 'static/positions_on_day.png')
+    plot_planets(angles, planets_radii_proportional, 1, planets_names, 'static/positions_on_day.png', planets_colors)
 
 
     return render_template("positions.html", angular_positions=angular_positions_list, day=day)
