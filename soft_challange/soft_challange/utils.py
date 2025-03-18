@@ -1,16 +1,17 @@
 from math import sqrt, cos, sin
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib import transforms
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-import matplotlib.image as mpimg
 from matplotlib.transforms import Affine2D
+import matplotlib.image as mpimg
 import numpy as np
 from numpy import ndarray, deg2rad
+from scipy.optimize import root_scalar
+from scipy.ndimage import rotate
 import time
 from soft_challange import app
 import os
-
-
 
 # backendu gen sa poata sa mearga inafara de main thread
 matplotlib.use('agg')
@@ -211,8 +212,8 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
                  planet_colors: list[str] | list[float], planet_names: list[str],
                  saveto_filename: str, planet1_name: str = None,
                  planet2_name: str = None,
-                 x_planet1_init=None, y_planet1_init=None, x_planet2_final=None, y_planet2_final=None, rocket_curr_x=None, rocket_curr_y=None):
-
+                 x_planet1_init=None, y_planet1_init=None, x_planet2_final=None, y_planet2_final=None,
+                 rocket_curr_x=None, rocket_curr_y=None, rotated_rocket=None):
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
 
@@ -249,14 +250,14 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
 
     # pt animatie cand linia ramane la fel in timp ce se misca planetele
     if None not in [x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final, planet1_name, planet2_name]:
-        #plot la linia aia
+        # plot la linia aia
         ax.plot([x_planet1_init, x_planet2_final], [y_planet1_init, y_planet2_final], 'r-', linewidth=2,
                 label=f"{planet1_name} → {planet2_name}")
-        #plot la racheta
-        rocket_img = mpimg.imread(os.path.join(app.config['UPLOAD_FOLDER'], 'lil_rocket.png'))
-        imagebox = OffsetImage(rocket_img, zoom=0.03)
-        trans = Affine2D().rotate_deg(30) + ax.transData
-        ab = AnnotationBbox(imagebox, (rocket_curr_x, rocket_curr_y), frameon=False, transform = trans)
+        # plot la rachetutza
+
+        rocket_imagebox = OffsetImage(rotated_rocket, zoom=0.03)
+
+        ab = AnnotationBbox(rocket_imagebox, (rocket_curr_x, rocket_curr_y), frameon=False)
         ax.add_artist(ab)
 
     # simplu doar pentru poza
@@ -433,7 +434,7 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     # I mean we need to see it as wel smr
     plot_planets(planets_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_colors,
                  planets_names,
-                'static/planets-accurate.png', from_planet, to_planet)
+                 'static/planets-accurate.png', from_planet, to_planet)
 
     return travel_results
 
@@ -458,42 +459,54 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
     :param saveto_filename:
     :return:
     """
-    #TODO nu prea arata accurate linia aia, gen deloc
+    # TODO nu prea arata accurate linia aia, gen deloc
 
     print('starting animationn ... be careful, this might take a while')
+    print('sorry for the Clipping input data red warnings belooww, i really tried removing them but it dont realy work')
     x_planet1_init = -1
     y_planet1_init = -1
     x_planet2_final = -1
     y_planet2_final = -1
 
+
     for i, planet_name in enumerate(planet_names):
         if planet_name == planet1_name:
             if type(orbit_radii) == int or type(orbit_radii) == float:
                 orbit_radius = (i + 1) * orbit_radii
-                x_planet1_init = orbit_radius * cos(deg2rad (init_angles[i]))
-                y_planet1_init = orbit_radius * sin(deg2rad (init_angles[i]))
+                x_planet1_init = orbit_radius * cos(deg2rad(init_angles[i]))
+                y_planet1_init = orbit_radius * sin(deg2rad(init_angles[i]))
             else:
-                x_planet1_init = orbit_radii[i] * cos(deg2rad (init_angles[i]))
-                y_planet1_init = orbit_radii[i] * sin(deg2rad (init_angles[i]))
+                x_planet1_init = orbit_radii[i] * cos(deg2rad(init_angles[i]))
+                y_planet1_init = orbit_radii[i] * sin(deg2rad(init_angles[i]))
         elif planet_name == planet2_name:
             if type(orbit_radii) == int or type(orbit_radii) == float:
                 orbit_radius = (i + 1) * orbit_radii
-                x_planet2_final = orbit_radius * cos(deg2rad (final_angles[i]))
-                y_planet2_final = orbit_radius * sin(deg2rad (final_angles[i]))
+                x_planet2_final = orbit_radius * cos(deg2rad(final_angles[i]))
+                y_planet2_final = orbit_radius * sin(deg2rad(final_angles[i]))
             else:
-                x_planet2_final = orbit_radii[i] * cos(deg2rad (final_angles[i]))
-                y_planet2_final = orbit_radii[i] * sin(deg2rad (final_angles[i]))
+                x_planet2_final = orbit_radii[i] * cos(deg2rad(final_angles[i]))
+                y_planet2_final = orbit_radii[i] * sin(deg2rad(final_angles[i]))
 
         elif x_planet1_init != -1 and x_planet2_final != -1:
             break
 
+    # facem unghiu prima data
+    slope = (y_planet2_final - y_planet1_init) / (x_planet2_final - x_planet1_init)
+    theta_line = np.arctan(slope) * 180 / np.pi
+    if slope > 0:
+        theta_rocket = theta_line + 360 - 90
+    else:
+        theta_rocket = theta_line + 90
+
+    rocket_img = mpimg.imread(os.path.join(app.config['UPLOAD_FOLDER'], 'lil_rocket.png'))
+
+    rotated_rocket = rotate(rocket_img, theta_rocket, reshape=True)
+
+
     # TODO nu se prea vede bine linia aia dintre planete
     # cand trece de 0 in timp ce mrge o sa fie negative diferenta aia
     angular_distances = [final_angle - init_angle if init_angle < final_angle else 360 - init_angle + final_angle for
-                       init_angle, final_angle in zip(init_angles, final_angles)]
-
-    rocket_curr_x = x_planet1_init
-    rocket_curr_y = y_planet1_init
+                         init_angle, final_angle in zip(init_angles, final_angles)]
 
     for frame_no in range(number_of_frames):
         path_proportion = frame_no / number_of_frames
@@ -506,7 +519,7 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
 
         plot_planets(angles, planets_radii, orbit_radii, planet_colors, planet_names,
                      f'frames/frame_{frame_no}.png', planet1_name, planet2_name, x_planet1_init, y_planet1_init,
-                     x_planet2_final, y_planet2_final, rocket_curr_x, rocket_curr_y)
+                     x_planet2_final, y_planet2_final, rocket_curr_x, rocket_curr_y, rotated_rocket)
 
     # face JIF
     import imageio.v3 as iio
@@ -514,10 +527,11 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
     images = []
     for frame_no in range(number_of_frames):
         images.append(iio.imread(f'frames/frame_{frame_no}.png'))
-    iio.imwrite(saveto_filename, images, loop=0)
+
+    # am incercat sa fac ca sa depinda cat de mult sta frameu de cate frameuri sunt da gen da niste erori ciudate si sacadeaza
+    iio.imwrite(saveto_filename, images, duration=1 / number_of_frames * 100, loop=0)
 
     # erau temp frameurile astea
-    import os
     for frame_no in range(number_of_frames):
         os.remove(f'frames/frame_{frame_no}.png')
 
@@ -572,7 +586,6 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     destination_angular_velocity = 360 / to_planet_data['period']
 
     # ok re zolvat pt total trabvel time is dupa ne dam seama cat vine fiecare stage de travel
-    from scipy.optimize import root_scalar
 
     for day in range(365 * 10):
 
@@ -688,7 +701,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
 
     start_time = time.time()
     animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_colors,
-                    planets_names, from_planet, to_planet, 10, 'static/planets_animation.gif')
+                    planets_names, from_planet, to_planet, 90, 'static/planets_animation.gif')
 
     print("--- It toook %s seconds ---" % (time.time() - start_time))
 
