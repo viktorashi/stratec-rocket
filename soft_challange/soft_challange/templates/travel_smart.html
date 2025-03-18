@@ -15,6 +15,12 @@
 
     <img src="../static/planets_animation.gif" alt="Planets" class="img-fluid mt-3">
 
+    <sub>
+        As you can observe, due to some slight differences in approximations (that I'm too tired to figure out) the line
+        doesn't <b>really</b> pass through the planets on their way, but it's close enough if you don't look too
+        closely.
+    </sub>
+
     <ul class="list-group mt-3">
         <li class="list-group-item"><b>Escape Time</b>: {{ travel.escape_time }} seconds from take-off</li>
         <li class="list-group-item"><b>Escape Distance</b>: {{ travel.escape_distance }} meters from start planet</li>
@@ -23,16 +29,19 @@
         <li id="cruise-time-readable" class="list-group-item"></li>
 
         <li class="list-group-item"><b>Deceleration distance</b>; the distance from destination planet at which it
-            starts deceleration: {{ travel.escape_distance }}</li>
+            starts deceleration: {{ travel.escape_distance }}
+        </li>
         <li class="list-group-item"><b>Deceleration time</b>; time it will take to descellerate to the destination
-            planet's surface : {{ travel.escape_time }}</li>
+            planet's surface : {{ travel.escape_time }}
+        </li>
 
         <li class="list-group-item"><b>Total Travel Time</b>: {{ travel.total_travel_time }}</li>
         <li id="total-travel-time-readable" class="list-group-item"><b>Total Travel Time but readable</b>:</li>
 
         <li class="list-group-item"><b>Transfer window</b>; the day (after those initial 100 days) in which the journey
             can be
-            made: {{ travel.optimal_transfer_window_day }}</li>
+            made: {{ travel.optimal_transfer_window_day }}
+        </li>
 
     </ul>
 
@@ -46,10 +55,10 @@
         </thead>
         <tbody>
         {% for planet_name in travel.start_angular_positions %}
-            <tr>
-                <td>{{ planet_name }}</td>
-                <td>{{ travel.start_angular_positions[planet_name][0] }}</td>
-            </tr>
+        <tr>
+            <td>{{ planet_name }}</td>
+            <td>{{ travel.start_angular_positions[planet_name][0] }}</td>
+        </tr>
         {% endfor %}
         </tbody>
     </table>
@@ -64,10 +73,10 @@
         </thead>
         <tbody>
         {% for planet_name in travel.end_angular_positions %}
-            <tr>
-                <td>{{ planet_name }}</td>
-                <td>{{ travel.end_angular_positions[planet_name][0] }}</td>
-            </tr>
+        <tr>
+            <td>{{ planet_name }}</td>
+            <td>{{ travel.end_angular_positions[planet_name][0] }}</td>
+        </tr>
         {% endfor %}
         </tbody>
     </table>
@@ -76,7 +85,9 @@
     <a href="{{ url_for('home') }}" class="btn btn-primary mt-3">Back to Home</a>
 
     <h5>Aight this really should look too good buttt it's more "accurate" because the orbits are proportional</h5>
-    <img src="../static/planets_animation_accurate.gif" alt="I had another video here but I decided to not render it since the load time took too long" class="img-fluid mt-3">
+    <img src="../static/planets_animation_accurate.gif"
+         alt="I had another video here but I decided to not render it since the load time took too long"
+         class="img-fluid mt-3">
 
 </div>
 
@@ -87,7 +98,12 @@
         hours: totalHours,
         minutes: totalMinutes,
         seconds: totalSeconds
-    } = convertSeconds({{travel.total_travel_time}});
+    } = convertSeconds({
+    {
+        travel.total_travel_time
+    }
+    })
+    ;
 
     const totalTravelTime = document.getElementById('total-travel-time-readable');
     totalTravelTime.innerText = `${totalDays} days, ${totalHours} hours, ${totalMinutes} minutes, ${totalSeconds} seconds`;
@@ -97,7 +113,12 @@
         hours: cruiseHours,
         minutes: cruiseMinutes,
         seconds: cruiseSeconds
-    } = convertSeconds({{travel.cruise_time}});
+    } = convertSeconds({
+    {
+        travel.cruise_time
+    }
+    })
+    ;
 
     const cruiseTime = document.getElementById('cruise-time-readable');
     cruiseTime.innerText = `${cruiseDays} days, ${cruiseHours} hours, ${cruiseMinutes} minutes, ${cruiseMinutes} seconds`;
