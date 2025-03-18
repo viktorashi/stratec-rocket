@@ -50,3 +50,14 @@ In the homepage you can drag and drop files for each stage of the problem (don't
 ![screenshot](pics/angle-positions.png)
 
 obviously, earth is aligned again
+
+Now, sparing you the details of stage 3, these are 5 and 6:
+
+![planet-plot.png](pics/planet-plot.png)
+
+Depending on whichever is fitting, those planetts will either:
+
+- be stationary showing the day in which we do our travel (for stage 5)
+- or a `gif` will be generated showing how planets are moving <b>during</b> our travel (for stage 6)
+
+Followed by (as requested) the angular positions on the start [and end for stage 6]  days.
