@@ -65,7 +65,7 @@ respectively
 
 Followed by (as requested) the angular positions on the start [and end for stage 6]  days.
 
-Here is also a really cool graph I used during my solution
+Here is also a really cool graph I used during my solution (completely unrelated, took me 2 hours to realise it doesn't even help me)
 ![cool_graph.png](pics/cool_graph.png)
 
 
