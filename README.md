@@ -61,4 +61,9 @@ Depending on whichever is fitting, those planetts will either:
 - be stationary showing the day in which we do our travel (for stage 5)
 - or a `gif` will be generated showing how planets are moving <b>during</b> our travel (for stage 6)
 
+respectively
+
 Followed by (as requested) the angular positions on the start [and end for stage 6]  days.
+
+Here is also a really cool graph I used during my solution
+![cool_graph.png](pics/cool_graph.png)
