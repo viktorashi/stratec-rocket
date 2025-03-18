@@ -200,9 +200,9 @@ def get_stupid_travel_data(planets: [dict], from_planet: str,
 
 
 def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: int | float | list[float] | ndarray,
-                 planet_colors: list[str] | list[float], planet_names: list[str], planet1_name: str,
-                 planet2_name: str,
-                 saveto_filename: str,
+                 planet_colors: list[str] | list[float], planet_names: list[str],
+                 saveto_filename: str, planet1_name: str = None,
+                 planet2_name: str = None,
                  x_planet1_init=None, y_planet1_init=None, x_planet2_final=None, y_planet2_final=None):
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_aspect('equal')
@@ -241,18 +241,18 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
         ax.text(x_planet, y_planet, f' {name}', fontsize=10, verticalalignment='bottom')
 
     # se foloseste cand vrei sa faci animatie ca nu t-i se schimba traiectoria in timp ce zbori
-    if None not in [x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final]:
+    if None not in [x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final, planet1_name, planet2_name]:
         ax.plot([x_planet1_init, x_planet2_final], [y_planet1_init, y_planet2_final], 'r-', linewidth=2,
                 label=f"{planet1_name} → {planet2_name}")
 
-    # Draw a line between the selected planets
-    elif planet1_name in planet_positions and planet2_name in planet_positions:
+    # nu-ti face linia decat daca nu faci sa te uiti doar la pozitii in ziua respectiva
+    elif planet1_name != None and planet2_name != None:
         x1, y1 = planet_positions[planet1_name]
         x2, y2 = planet_positions[planet2_name]
         ax.plot([x1, x2], [y1, y2], 'r-', linewidth=2, label=f"{planet1_name} → {planet2_name}")
+    #nu vrei nicio linie plotuita
     else:
-        raise ValueError(
-            f"Invalid planet names: {planet1_name}, {planet2_name} ORR either you have only partially set initial and final positions")
+        pass
 
     # Mark the center (could be the star)
     ax.plot(0, 0, 'yo', markersize=12, label='Center')
@@ -407,8 +407,9 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
 
     # TODO ai putea sa faci su cu orbitele alea reale da dupa nu se pream ai vede bine
-    plot_planets(planets_angles, planets_radii_proportional, 1, planets_colors, planets_names,
-                 from_planet, to_planet, 'static/planets.png')
+    plot_planets(planets_angles, planets_radii_proportional, 1, planets_colors, to_planet, 'static/planets.png', planets_names,
+                 from_planet)
+
     # this time accurately with the plante radii
     largest_orbit_radius = max([planet['orbital_radius'] for planet in planets])
     planets_proportional_orbit_radii = [planet['orbital_radius'] / largest_orbit_radius for planet in planets]
@@ -470,15 +471,16 @@ def animate_planets(init_angles: list[float], final_angles: list[float],
 
     # TODO nu se prea vede bine linia aia dintre planete
     # cand trece de 0 in timp cem erge o sa fie negative diferenta aia
-    angle_distances = [final_angle - init_angle if init_angle < final_angle else 360 - init_angle + final_angle for init_angle, final_angle in zip(init_angles, final_angles)]
+    angle_distances = [final_angle - init_angle if init_angle < final_angle else 360 - init_angle + final_angle for
+                       init_angle, final_angle in zip(init_angles, final_angles)]
 
     for frame_no in range(number_of_frames):
         path_proportion = frame_no / number_of_frames
         angles = [init_angle + total_circular_distance * path_proportion for init_angle, total_circular_distance in
                   zip(init_angles, angle_distances)]
 
-        plot_planets(angles, planets_radii, orbit_radii, planet_colors, planet_names, planet1_name, planet2_name,
-                     f'frames/frame_{frame_no}.png', x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final)
+        plot_planets(angles, planets_radii, orbit_radii, planet_colors, planet_names,
+                     f'frames/frame_{frame_no}.png', planet1_name, planet2_name, x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final)
 
     # face JIF
     import imageio.v3 as iio
@@ -729,6 +731,16 @@ def get_angular_positions(planets, day: int) -> [dict[int, float, int]]:
         orbit_radius = planet['orbital_radius'] * AU
         planet_radius = planet['diameter'] / 2
         angular_positions[planet['name']] = [angular_position, orbit_radius, planet_radius]
+
+    # you know what? plot these as well
+    angles = [angular_positions[planet][0] for planet in angular_positions]
+    max_planet_diameter = max([planet['diameter'] for planet in planets])
+    planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
+    planets_colors = ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896', '#fff1d5']
+    planets_names = [planet for planet in angular_positions]
+
+    plot_planets(angles, planets_radii_proportional, 1, planets_colors, planets_names,
+                 'static/positions_on_day.png')
 
     return angular_positions
 
