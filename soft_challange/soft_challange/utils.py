@@ -495,7 +495,7 @@ def animate_planets(init_angles: list[float], final_angles: list[float], planets
         elif x_planet1_init != -1 and x_planet2_final != -1:
             break
 
-    # facem unghiu prima data
+    # directia
     slope = (y_planet2_final - y_planet1_init) / (x_planet2_final - x_planet1_init)
     theta_line = np.arctan(slope) * 180 / np.pi
     if slope > 0:
@@ -503,8 +503,12 @@ def animate_planets(init_angles: list[float], final_angles: list[float], planets
     else:
         theta_rocket = theta_line + 90
 
-    if y_planet2_final < y_planet1_init:
+
+    #dupa sensul
+    if (0 <theta_rocket < 90 or 270 < theta_rocket < 360) and y_planet2_final < y_planet1_init:
         theta_rocket += 180
+    elif (90 < theta_rocket < 270) and y_planet2_final > y_planet1_init:
+        theta_rocket -= 180
 
     rocket_img = mpimg.imread(os.path.join(app.config['UPLOAD_FOLDER'], 'lil_rocket.png'))
 

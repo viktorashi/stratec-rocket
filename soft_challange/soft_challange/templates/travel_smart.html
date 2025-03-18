@@ -92,12 +92,8 @@
         hours: totalHours,
         minutes: totalMinutes,
         seconds: totalSeconds
-    } = convertSeconds({
-    {
-        travel.total_travel_time
-    }
-    })
-    ;
+    } = convertSeconds({{travel.total_travel_time}})
+    // #TODO DON'T FORMATT, FORAMATTING WILL PUT THE BRACES ON SEPPERATE LINES AND IT WONT WORK NO MORE
 
     const totalTravelTime = document.getElementById('total-travel-time-readable');
     totalTravelTime.innerText = `${totalDays} days, ${totalHours} hours, ${totalMinutes} minutes, ${totalSeconds} seconds`;
@@ -107,15 +103,13 @@
         hours: cruiseHours,
         minutes: cruiseMinutes,
         seconds: cruiseSeconds
-    } = convertSeconds({
-    {
-        travel.cruise_time
-    }
-    })
-    ;
+    } = convertSeconds({{travel.cruise_time}})
+    // #TODO DON'T FORMATT, FORAMATTING WILL PUT THE BRACES ON SEPPERATE LINES AND IT WONT WORK NO MORE
+
 
     const cruiseTime = document.getElementById('cruise-time-readable');
     cruiseTime.innerText = `${cruiseDays} days, ${cruiseHours} hours, ${cruiseMinutes} minutes, ${cruiseMinutes} seconds`;
+
 </script>
 </body>
 </html>
