@@ -1,9 +1,15 @@
 from math import sqrt, cos, sin
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+import matplotlib.image as mpimg
+from matplotlib.transforms import Affine2D
 import numpy as np
 from numpy import ndarray, deg2rad
 import time
+from soft_challange import app
+import os
+
 
 
 # backendu gen sa poata sa mearga inafara de main thread
@@ -247,7 +253,11 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
         ax.plot([x_planet1_init, x_planet2_final], [y_planet1_init, y_planet2_final], 'r-', linewidth=2,
                 label=f"{planet1_name} → {planet2_name}")
         #plot la racheta
-        ax.plot(rocket_curr_x, rocket_curr_y, 'bo', markersize=5, label='Racketaaa')
+        rocket_img = mpimg.imread(os.path.join(app.config['UPLOAD_FOLDER'], 'lil_rocket.png'))
+        imagebox = OffsetImage(rocket_img, zoom=0.03)
+        trans = Affine2D().rotate_deg(30) + ax.transData
+        ab = AnnotationBbox(imagebox, (rocket_curr_x, rocket_curr_y), frameon=False, transform = trans)
+        ax.add_artist(ab)
 
     # simplu doar pentru poza
     elif planet1_name != None and planet2_name != None:
@@ -678,7 +688,7 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
 
     start_time = time.time()
     animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_colors,
-                    planets_names, from_planet, to_planet, 100, 'static/planets_animation.gif')
+                    planets_names, from_planet, to_planet, 10, 'static/planets_animation.gif')
 
     print("--- It toook %s seconds ---" % (time.time() - start_time))
 
