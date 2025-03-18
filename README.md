@@ -67,3 +67,6 @@ Followed by (as requested) the angular positions on the start [and end for stage
 
 Here is also a really cool graph I used during my solution
 ![cool_graph.png](pics/cool_graph.png)
+
+
+ok ye im sorry if it's a little too extra but i really just wanted an interview =))
