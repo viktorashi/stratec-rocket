@@ -664,8 +664,9 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     planets_proportional_orbit_radii = [planet['orbital_radius'] / largest_orbit_radius for planet in planets]
     planets_proportional_orbit_radii = np.array(planets_proportional_orbit_radii)
 
-    animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_colors,
-                    planets_names, from_planet, to_planet, 100, 'static/planets_animation_accurate.gif')
+#prolly don't need this cuz it takes too long
+    # animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_colors,
+    #                 planets_names, from_planet, to_planet, 100, 'static/planets_animation_accurate.gif')
 
     return travel_results
 
