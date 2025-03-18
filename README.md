@@ -3,7 +3,6 @@
 
 <b>ok, this was amazing</b> , so cosidering I didn't make it 'till Monday I wanted to go a little extra (astronomical) mile, feeling I had to
 
-§
 https://github.com/user-attachments/assets/030b042d-d07e-422c-8a37-3a980be9e88e
 
 
