@@ -7,12 +7,21 @@ https://github.com/user-attachments/assets/030b042d-d07e-422c-8a37-3a980be9e88e
 
 
 #### running it:
+
+first install [uv](https://docs.astral.sh/uv/guides/install-python/)
 ```bash
 git clone https://github.com/viktorashi/stratec-rocket.git
+cd stratec-rocket/soft_challange/
+make
+```
+### Done!
+
+orr if you don't have / want `uv` you can (using regular pip)
+
+``` bash
 #yes, twice
 cd stratec-rocket/soft_challange/soft_challange
 ```
-
 so `pwd` returns somehting like `/path/to/soft_challange/soft_challange`
 then
 
