@@ -12,6 +12,8 @@ from scipy.ndimage import rotate
 import time
 from soft_challange import app
 import os
+# face JIF
+import imageio.v3 as iio
 
 # backendu gen sa poata sa mearga inafara de main thread
 matplotlib.use('agg')
@@ -531,8 +533,6 @@ def animate_planets(init_angles: list[float], final_angles: list[float], planets
                      planet1_name, planet2_name, x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final,
                      rocket_curr_x, rocket_curr_y, rotated_rocket)
 
-    # face JIF
-    import imageio.v3 as iio
 
     images = []
     for frame_no in range(number_of_frames):
