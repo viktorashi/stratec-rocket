@@ -11,26 +11,12 @@ https://github.com/user-attachments/assets/030b042d-d07e-422c-8a37-3a980be9e88e
 first install [uv](https://docs.astral.sh/uv/guides/install-python/)
 ```bash
 git clone https://github.com/viktorashi/stratec-rocket.git
-cd stratec-rocket/soft_challange/
+cd stratec-rocket
 make
 ```
 ### Done!
 
-orr if you don't have / want `uv` you can (using regular pip)
-
-``` bash
-#yes, twice
-cd stratec-rocket/soft_challange/soft_challange
-```
-so `pwd` returns somehting like `/path/to/soft_challange/soft_challange`
-then
-
-Now's the time to activate/create a [virtual env](https://virtualenvwrapper.readthedocs.io/en/latest/) or just do it global if you feel like it
-```bash
-pip install -r requirements.txt
-flask --app . run
-```
-and now you can access the app through your localhost or 127.000 or whatever
+now you can access the app through your localhost or 127.000 or whatever
 
 
 <br>
