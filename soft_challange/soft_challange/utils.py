@@ -15,7 +15,6 @@ import imageio.v3 as iio
 from manim import tempconfig, config
 from manimate_planets import Planets
 
-
 # backendu gen sa poata sa mearga inafara de main thread
 matplotlib.use('agg')
 
@@ -249,7 +248,7 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
         if planet_colors is not None:
             planet_circle = plt.Circle((x_planet, y_planet), radius, color=planet_colors[i], fill=True)
         else:
-            #sunt toate albsatre cu viata pe ele gen doamne ajuta
+            # sunt toate albsatre cu viata pe ele gen doamne ajuta
             planet_circle = plt.Circle((x_planet, y_planet), radius, color='blue', fill=True)
 
         ax.add_patch(planet_circle)
@@ -285,12 +284,13 @@ def plot_planets(angles: list[float], planets_radii: list[float], orbit_radii: i
     plt.close()
 
 
-def get_colors_if_possible(number_of_planets:int)-> None | list[str]:
+def get_colors_if_possible(number_of_planets: int) -> None | list[str]:
     if number_of_planets == 9:
-        return  ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896',
-                          '#fff1d5']
+        return ['#1a1a1a', '#e6e6e6', '#2f6a69', '#993d00', '#b07f35', '#b08f36', '#5580aa', '#366896',
+                '#fff1d5']
     else:
         return None
+
 
 def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) -> dict | bool:
     """
@@ -451,10 +451,10 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
     return travel_results
 
 
-def animate_planets(init_angles: list[float], final_angles: list[float], planets_radii: list[float],
-                    orbit_radii: int | float | list[float] | ndarray, planet_names: list[str], planet1_name: str,
-                    planet2_name: str, number_of_frames: int, saveto_filename: str,
-                    planet_colors: list[str] | list[float] = None):
+def animate_planets_gif(init_angles: list[float], final_angles: list[float], planets_radii: list[float],
+                        orbit_radii: int | float | list[float] | ndarray, planet_names: list[str], planet1_name: str,
+                        planet2_name: str, number_of_frames: int, saveto_filename: str,
+                        planet_colors: list[str] | list[float] = None):
     """
     :param init_angles:
     :param planets_radii:
@@ -497,6 +497,7 @@ def animate_planets(init_angles: list[float], final_angles: list[float], planets
         elif x_planet1_init != -1 and x_planet2_final != -1:
             break
 
+    # aici TOATA rachetusa
     # directia
     slope = (y_planet2_final - y_planet1_init) / (x_planet2_final - x_planet1_init)
     theta_line = np.arctan(slope) * 180 / np.pi
@@ -505,9 +506,8 @@ def animate_planets(init_angles: list[float], final_angles: list[float], planets
     else:
         theta_rocket = theta_line + 90
 
-
-    #dupa sensul
-    if (0 <theta_rocket < 90 or 270 < theta_rocket < 360) and y_planet2_final < y_planet1_init:
+    # dupa sensul
+    if (0 < theta_rocket < 90 or 270 < theta_rocket < 360) and y_planet2_final < y_planet1_init:
         theta_rocket += 180
     elif (90 < theta_rocket < 270) and y_planet2_final > y_planet1_init:
         theta_rocket -= 180
@@ -533,7 +533,6 @@ def animate_planets(init_angles: list[float], final_angles: list[float], planets
                      planet1_name, planet2_name, x_planet1_init, y_planet1_init, x_planet2_final, y_planet2_final,
                      rocket_curr_x, rocket_curr_y, rotated_rocket)
 
-
     images = []
     for frame_no in range(number_of_frames):
         images.append(iio.imread(f'frames/frame_{frame_no}.png'))
@@ -544,6 +543,29 @@ def animate_planets(init_angles: list[float], final_angles: list[float], planets
     # erau temp frameurile astea
     for frame_no in range(number_of_frames):
         os.remove(f'frames/frame_{frame_no}.png')
+
+def manim_planets(init_planet_angles: list[float], final_planet_angles: list[float], planets_radii: list[float],
+                 orbit_radii: int | float | list[float] | ndarray,
+                 planet_colors: list[str] | list[float] = None):
+    print('facem si o animatie cu patratul for the sake of it')
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(script_dir, "manim-render")
+
+    # Ensure the output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    config.media_dir = output_dir
+    config.verbosity = "ERROR"  # Keep output clean, only show errors
+
+    with tempconfig({'quality': 'low_quality', 'preview': True, "disable_caching": True}):
+        scene = Planets(init_planet_angles, final_planet_angles, planets_radii, orbit_radii, planet_colors)
+        """
+        o pune in 
+        manim-render/videos/480p15/<numele_clasa>.mp4
+        pt templates ar fi probabil gen
+        ../manim-render/videos/480p15/<numele_clasa>.mp4
+        """
+        scene.render()
 
 
 def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, rocket: dict) -> dict | bool:
@@ -709,33 +731,15 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     max_planet_diameter = max([planet['diameter'] for planet in planets])
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
 
-    #TODO vezi ca ai sters asta sa vezi doar manim cu merge
+    # TODO vezi ca ai sters asta sa vezi doar manim cu merge
     # start_time = time.time()
     #
-    # animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_names, from_planet,
-    #                 to_planet, 90, 'static/planets_animation.gif', planets_colors)
+    # animate_planets_gif(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_names, from_planet,
+    #                     to_planet, 90, 'static/planets_animation.gif', planets_colors)
     #
     # print("--- It toook %s seconds ---" % (time.time() - start_time))
 
-    print('facem si o animatie cu patratul for the sake of it')
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(script_dir, "manim-render")
-
-    # Ensure the output directory exists
-    os.makedirs(output_dir, exist_ok=True)
-
-    config.media_dir = output_dir
-    config.verbosity = "ERROR"  # Keep output clean, only show errors
-
-    with tempconfig({'quality': 'low_quality', 'preview': True}):
-       scene = Planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_colors)
-       """
-       o pune in 
-       manim-render/videos/480p15/<numele_clasa>.mp4
-       pt templates ar fi probabil gen
-       ../manim-render/videos/480p15/<numele_clasa>.mp4
-       """
-       scene.render()
+    manim_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 2, planets_colors)
 
     # this time accurately with the plante radii
     # prolly don't need this cuz it takes too long

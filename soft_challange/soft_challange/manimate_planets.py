@@ -1,5 +1,6 @@
 from manim import *
 from numpy import ndarray
+from scipy.stats import alpha
 
 
 class Planets(ZoomedScene):
@@ -40,24 +41,19 @@ class Planets(ZoomedScene):
         else:
             raise TypeError("orbit_radii must be int, float, list, or numpy array.")
 
+        self.num_planets = num_planets
         self.orbit_radii = orbit_radii
 
         super().__init__(**kwargs)
 
     def construct(self):
-        init_angles = self.init_angles
-        final_angles = self.final_angles
-        planets_radii = self.planets_radii
-        orbit_radii = self.orbit_radii
-        planet_colors = self.planet_colors
 
         # --- Adjust Camera Frame Width (Zoom Out) ---
         # Find the radius of the outermost orbit
         max_radius = self.actual_orbit_radii[-1]  # Get the last radius in the list
-
         # Set the camera frame width to be slightly larger than the diameter of the outermost orbit
         # The diameter is max_radius * 2. Multiply by padding factor.
-        target_width = max_radius * 2 * 2 # nu stiu sincer n-am inteles dc asta
+        target_width = max_radius * 2 * 2.3  # nu stiu sincer n-am inteles dc asta
         self.camera.frame.set_width(target_width)
         # self.camera.background_color = BLACK
 
@@ -75,14 +71,55 @@ class Planets(ZoomedScene):
             )
             orbit_mobjects.add(orbit)
 
-        # --- Animation ---
-        self.play(Create(sun), run_time=1)
 
-        self.play(
-            LaggedStart(
-                *[Create(orbit) for orbit in orbit_mobjects],
-                lag_ratio=0.5  # Orbits appear slightly after each other
-            ),
-            run_time=2  # Adjust time as needed based on number of orbits
-        )
-        self.wait(1)  # Pause at the end
+        # Scaling factor for visual size of planets
+        planet_visual_scale = 1  # Adjust this value as needed
+
+        # 3. Create the Planets (as Dots)
+        planet_mobjects = VGroup()
+        default_planet_color = WHITE  # Color to use if no specific color is provided
+
+        for i in range(self.num_planets):
+            orbit_r = self.actual_orbit_radii[i]
+            planet_r = self.planets_radii[i]
+
+            # Determine color: Use provided color or default
+            planet_color = default_planet_color
+            if self.planet_colors and i < len(self.planet_colors):
+                # Try converting hex string to color object, handle potential errors
+                try:
+                    planet_color = ManimColor.from_hex(self.planet_colors[i])
+                except:
+                    print(
+                        f"Warning: Could not interpret planet_colors[{i}] = '{self.planet_colors[i]}'. Using default.")
+                    planet_color = default_planet_color  # Fallback to default on error
+            elif self.planet_colors is not None:
+                print(f"Warning: Not enough colors provided in planet_colors. Using default for planet {i}.")
+                # Default color is already set
+
+            # Calculate position using polar coordinates
+            planet_pos = np.array([
+                orbit_r * np.cos(self.init_angles[i]),
+                orbit_r * np.sin(self.init_angles[i]),
+                0  # Z-coordinate is 0 for 2D
+            ])
+
+            # Create the dot for the planet
+            planet_dot = Dot(
+                point=planet_pos,
+                radius=planet_r * planet_visual_scale,  # Use scaled radius
+                color=planet_color
+            )
+            planet_mobjects.add(planet_dot)
+            self.add(planet_dot)
+
+        # adding it all up
+        self.add(sun)
+        self.add(orbit_mobjects)
+
+        # cand trece de 0 in timp ce mrge o sa fie negative diferenta aia
+        angular_distances = [final_angle - init_angle if init_angle < final_angle else 360 - init_angle + final_angle
+                             for
+                             init_angle, final_angle in zip(self.init_angles, self.final_angles)]
+
+
