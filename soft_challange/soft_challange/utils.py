@@ -14,6 +14,9 @@ from soft_challange import app
 import os
 # face JIF
 import imageio.v3 as iio
+from manim import tempconfig, config
+from manimate_planets import Planets
+
 
 # backendu gen sa poata sa mearga inafara de main thread
 matplotlib.use('agg')
@@ -467,7 +470,6 @@ def animate_planets(init_angles: list[float], final_angles: list[float], planets
     :param saveto_filename:
     :return:
     """
-    # TODO nu prea arata accurate linia aia, gen deloc
 
     print('starting animationn ... be careful, this might take a while')
     print('sorry for the Clipping input data red warnings belooww, i really tried removing them but it dont realy work')
@@ -710,17 +712,37 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
 
     start_time = time.time()
+
     animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_names, from_planet,
                     to_planet, 90, 'static/planets_animation.gif', planets_colors)
 
     print("--- It toook %s seconds ---" % (time.time() - start_time))
 
-    # this time accurately with the plante radii
-    largest_orbit_radius = max([planet['orbital_radius'] for planet in planets])
-    planets_proportional_orbit_radii = [planet['orbital_radius'] / largest_orbit_radius for planet in planets]
-    planets_proportional_orbit_radii = np.array(planets_proportional_orbit_radii)
+    print('facem si o animatie cu patratul for the sake of it')
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(script_dir, "manim-render")
 
+    # Ensure the output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    config.media_dir = output_dir
+    config.verbosity = "ERROR"  # Keep output clean, only show errors
+
+    with tempconfig({'quality': 'low_quality'}):
+       scene = Planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_colors)
+       """
+       o pune in 
+       media/videos/480p15/<numele_clasa>.mp4
+       pt templates ar fi probabil gen
+       ../media/videos/480p15/<numele_clasa>.mp4
+       """
+       scene.render()
+
+    # this time accurately with the plante radii
     # prolly don't need this cuz it takes too long
+    # largest_orbit_radius = max([planet['orbital_radius'] for planet in planets])
+    # planets_proportional_orbit_radii = [planet['orbital_radius'] / largest_orbit_radius for planet in planets]
+    # planets_proportional_orbit_radii = np.array(planets_proportional_orbit_radii)
     # animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, planets_proportional_orbit_radii * 19, planets_colors,
     #                 planets_names, from_planet, to_planet, 100, 'static/planets_animation_accurate.gif')
 
