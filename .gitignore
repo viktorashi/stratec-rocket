@@ -1,6 +1,7 @@
 .DS_Store
 .idea/
 .vscode/
+.run/
 __pycache__/
 uploads/
 frames/
@@ -11,3 +12,4 @@ planets-accurate.png
 #kkturile genreate de manim
 soft_challange/media/
 soft_challange/soft_challange/media/
+soft_challange/soft_challange/manim-render/

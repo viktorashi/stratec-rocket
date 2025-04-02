@@ -1,9 +1,7 @@
 from math import sqrt, cos, sin
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib import transforms
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
-from matplotlib.transforms import Affine2D
 import matplotlib.image as mpimg
 import numpy as np
 from numpy import ndarray, deg2rad
@@ -426,7 +424,7 @@ def get_medium_travel_data(planets: [dict], from_planet: str, to_planet: str) ->
                                                 'diameter'] * (10 ** 3) / 2)
                                            / cruising_velocity)
 
-    # ok astea sunt noi))
+    # ok astea sunt noi
     travel_results['optimal_transfer_window'] = optimal_transfer_window_day
     travel_results['angular_positions'] = get_angular_positions(planets, t0 + optimal_transfer_window_day)
 
@@ -460,7 +458,7 @@ def animate_planets(init_angles: list[float], final_angles: list[float], planets
     """
     :param init_angles:
     :param planets_radii:
-    :param orbit_radii: either int | float for a constant STEP which every orbit takes, or a list[float] | ndarray with the radii of each orbit
+    :param orbit_radii: either int | float for a constant STEP which every orbit takes starting from the sun, or a list[float] | ndarray with the individual radii of each orbit
     :param final_angles:
     :param planet_colors:
     :param planet_names:
@@ -711,12 +709,13 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     max_planet_diameter = max([planet['diameter'] for planet in planets])
     planets_radii_proportional = [planet['diameter'] / max_planet_diameter for planet in planets]
 
-    start_time = time.time()
-
-    animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_names, from_planet,
-                    to_planet, 90, 'static/planets_animation.gif', planets_colors)
-
-    print("--- It toook %s seconds ---" % (time.time() - start_time))
+    #TODO vezi ca ai sters asta sa vezi doar manim cu merge
+    # start_time = time.time()
+    #
+    # animate_planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_names, from_planet,
+    #                 to_planet, 90, 'static/planets_animation.gif', planets_colors)
+    #
+    # print("--- It toook %s seconds ---" % (time.time() - start_time))
 
     print('facem si o animatie cu patratul for the sake of it')
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -728,13 +727,13 @@ def get_smart_travel_data(planets: [dict], from_planet: str, to_planet: str, roc
     config.media_dir = output_dir
     config.verbosity = "ERROR"  # Keep output clean, only show errors
 
-    with tempconfig({'quality': 'low_quality'}):
+    with tempconfig({'quality': 'low_quality', 'preview': True}):
        scene = Planets(init_planet_angles, final_planet_angles, planets_radii_proportional, 1, planets_colors)
        """
        o pune in 
-       media/videos/480p15/<numele_clasa>.mp4
+       manim-render/videos/480p15/<numele_clasa>.mp4
        pt templates ar fi probabil gen
-       ../media/videos/480p15/<numele_clasa>.mp4
+       ../manim-render/videos/480p15/<numele_clasa>.mp4
        """
        scene.render()
 
